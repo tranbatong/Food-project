@@ -1,0 +1,135 @@
+/* Bao bọc toàn bộ trang Order */
+.order {
+  width: 100%;
+  padding: 20px;
+}
+
+.order h3 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Thẻ đơn hàng hiện đại */
+.order-item {
+  display: grid;
+  grid-template-columns: 0.5fr 2fr 1fr 1fr 1fr;
+  align-items: start;
+  gap: 30px;
+  border: 1px solid #f9f9f9;
+  padding: 25px;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  font-size: 14px;
+  color: #454545;
+}
+
+/* Hiệu ứng nổi thẻ khi Admin lướt chuột qua */
+.order-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(255, 99, 71, 0.12);
+}
+
+.order-item img {
+  width: 50px;
+}
+
+.order-item-food {
+  font-weight: 600;
+  color: tomato;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+.order-item-name {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.order-item-address {
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.order-item-phone {
+  color: #555;
+  font-weight: 500;
+}
+
+.order-item select {
+  background-color: #ffe1e1;
+  border: 1px solid tomato;
+  padding: 10px 25px;
+  outline: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #454545;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.order-item select:focus,
+.order-item select:hover {
+  background-color: tomato;
+  color: white;
+  box-shadow: 0 4px 10px rgba(255, 99, 71, 0.3);
+}
+.order-item select option {
+  background-color: white;
+  color: #454545;
+  font-weight: 500;
+}
+
+.order-item select option:checked,
+.order-item select option:hover {
+  background-color: #ffe1e1;
+  color: tomato;
+}
+
+/* Responsive cho màn hình Tablet */
+@media (max-width: 1200px) {
+  .order-item {
+    grid-template-columns: 0.5fr 2fr 1fr;
+    row-gap: 20px;
+    align-items: center;
+  }
+  .order-item select {
+    grid-column: 3;
+  }
+}
+
+/* Responsive cho màn hình Điện thoại */
+@media (max-width: 768px) {
+  .order-item {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 15px;
+    padding: 20px;
+  }
+
+  .order-item img {
+    margin: 0 auto;
+    width: 60px;
+  }
+
+  .order-item select {
+    width: 100%; /* Kéo dài full viền để dễ bấm trên điện thoại */
+    margin-top: 10px;
+  }
+
+  .order-item select {
+    grid-column: 1;
+  }
+}

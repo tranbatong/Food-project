@@ -1,0 +1,92 @@
+.my-orders {
+  margin: 50px 0px;
+}
+
+.my-orders .container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.my-orders-order {
+  display: grid;
+  grid-template-columns: 0.5fr 2fr 1fr 1fr 1fr 1fr;
+  align-items: center;
+  gap: 20px;
+  font-size: 14px;
+  padding: 20px 30px;
+  color: #454545;
+  background-color: #ffffff;
+  border: 1px solid #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+/* Hiệu ứng nổi lên khi di chuột vào thẻ */
+.my-orders-order:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(255, 99, 71, 0.12);
+  border-color: #ffe1e1;
+}
+
+.my-orders-order img {
+  width: 50px;
+}
+
+.my-orders-order button {
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #ffe1e1;
+  color: #454545;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+/* Hiệu ứng khi hover vào nút */
+.my-orders-order button:hover {
+  background-color: tomato;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(255, 99, 71, 0.3);
+}
+
+.my-orders-order p span {
+  color: tomato;
+  font-weight: bold;
+}
+
+.my-orders-order p b {
+  font-weight: 600;
+  color: #333333;
+}
+
+@media (max-width: 900px) {
+  .my-orders-order {
+    grid-template-columns: 1fr 2fr 1fr;
+    row-gap: 20px;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .my-orders-order {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+    padding: 25px 15px;
+  }
+
+  .my-orders-order img {
+    margin: 0 auto;
+    width: 60px;
+  }
+
+  .my-orders-order button {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
