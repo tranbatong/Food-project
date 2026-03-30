@@ -3,7 +3,10 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import validator from "validator";
 
-//login user
+const createToken = (id, isAdmin) => {
+  return jwt.sign({ id, isAdmin }, process.env.JWT_SECRET);
+};
+
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -15,10 +18,13 @@ const loginUser = async (req, res) => {
     if (!isMatch) {
       return res.json({ success: false, message: "Invalid credentials" });
     }
-    const token = createToken(user._id);
+
+    const token = createToken(user._id, user.isAdmin);
+
     res.json({
       success: true,
       token,
+      isAdmin: user.isAdmin,
     });
   } catch (error) {
     console.log(error);
@@ -26,11 +32,6 @@ const loginUser = async (req, res) => {
   }
 };
 
-const createToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET);
-};
-
-//register user
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
   try {
@@ -50,20 +51,22 @@ const registerUser = async (req, res) => {
         message: "Please enter a password with at least 8 characters",
       });
     }
-    // hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    // create user
+
     const newUser = new userModel({
       name: name,
       email: email,
       password: hashedPassword,
     });
     const user = await newUser.save();
-    const token = createToken(user._id);
+
+    const token = createToken(user._id, false);
+
     res.json({
       success: true,
       token,
+      isAdmin: false,
     });
   } catch (error) {
     console.log(error);

@@ -8,6 +8,7 @@ import Footer from "./components/Footer/Footer";
 import LoginPopup from "./components/LoginPopup/LoginPopup";
 import Verify from "./pages/Verify/Verify";
 import MyOrders from "./pages/MyOrders/MyOrders";
+import ChatBox from "./components/ChatBox/ChatBox";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -26,6 +27,7 @@ const App = () => {
           <Route path="/verify" element={<Verify />}></Route>
           <Route path="/myorders" element={<MyOrders />}></Route>
         </Routes>
+        <ChatBox />
       </div>
       <Footer />
     </div>
