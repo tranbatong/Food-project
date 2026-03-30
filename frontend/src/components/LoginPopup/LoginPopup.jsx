@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react"; // Thêm useContext
+import React, { useState, useContext } from "react";
 import "./LoginPopup.css";
 import { assets } from "../../assets/assets";
 import axios from "axios";
@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { StoreContext } from "../../context/StoreContext";
 
 const LoginPopup = ({ setShowLogin }) => {
-  const { url, setToken } = useContext(StoreContext);
+  const { url, setToken, setIsAdmin } = useContext(StoreContext);
 
   const [currState, setCurrState] = useState("Login");
   const [data, setData] = useState({
@@ -36,10 +36,13 @@ const LoginPopup = ({ setShowLogin }) => {
 
       if (response.data.success) {
         const token = response.data.token;
+        const userIsAdmin = response.data.isAdmin;
 
         setToken(token);
+        setIsAdmin(userIsAdmin);
 
         localStorage.setItem("token", token);
+        localStorage.setItem("isAdmin", userIsAdmin);
 
         setShowLogin(false);
 

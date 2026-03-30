@@ -9,6 +9,7 @@ const StoreContextProvider = (props) => {
 
   const url = "http://localhost:4000";
   const [token, setToken] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [food_list, setFoodList] = useState([]);
 
   const addToCart = async (itemId) => {
@@ -67,6 +68,8 @@ const StoreContextProvider = (props) => {
       if (localStorage.getItem("token")) {
         setToken(localStorage.getItem("token"));
         await localCartData(localStorage.getItem("token"));
+        const storedIsAdmin = localStorage.getItem("isAdmin") === "true";
+        setIsAdmin(storedIsAdmin);
       }
     }
     loadData();
@@ -82,6 +85,8 @@ const StoreContextProvider = (props) => {
     url,
     token,
     setToken,
+    isAdmin,
+    setIsAdmin,
   };
   return (
     <StoreContext.Provider value={contextValue}>

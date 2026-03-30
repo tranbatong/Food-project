@@ -6,12 +6,15 @@ import { StoreContext } from "../../context/StoreContext";
 
 const Navbar = ({ setShowLogin }) => {
   const [menu, setMenu] = useState("Home");
-  const { getTotalCartAmount, token, setToken } = useContext(StoreContext);
+  const { getTotalCartAmount, token, setToken, isAdmin, setIsAdmin } =
+    useContext(StoreContext);
   const navigate = useNavigate();
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("isAdmin");
     setToken("");
+    setIsAdmin(false);
     navigate("/");
   };
 
@@ -65,6 +68,21 @@ const Navbar = ({ setShowLogin }) => {
           <div className="navbar-profile">
             <img src={assets.profile_icon} alt="profile" />
             <ul className="nav-profile-dropdown">
+              {/* Hiển thị nút Admin và mở ứng dụng ở port 5173 trên một tab mới */}
+              {isAdmin && (
+                <>
+                  <li
+                    onClick={() =>
+                      window.open("http://localhost:5173", "_blank")
+                    }
+                  >
+                    <img src={assets.profile_icon} alt="admin" />
+                    <p>Admin Panel</p>
+                  </li>
+                  <hr />
+                </>
+              )}
+
               <li onClick={() => navigate("/myorders")}>
                 <img src={assets.bag_icon} alt="orders" />
                 <p>Orders</p>
