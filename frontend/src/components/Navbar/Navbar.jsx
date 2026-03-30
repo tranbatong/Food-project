@@ -73,7 +73,10 @@ const Navbar = ({ setShowLogin }) => {
                 <>
                   <li
                     onClick={() =>
-                      window.open("http://localhost:5173", "_blank")
+                      window.open(
+                        `http://localhost:5173?token=${token}`,
+                        "_blank",
+                      )
                     }
                   >
                     <img src={assets.profile_icon} alt="admin" />
