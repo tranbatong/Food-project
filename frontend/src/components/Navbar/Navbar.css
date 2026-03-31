@@ -89,6 +89,39 @@
   color: tomato;
 }
 
+.navbar-search-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.navbar-search-input {
+  padding: 8px 12px;
+  border: 1px solid tomato;
+  border-radius: 20px;
+  outline: none;
+  font-size: 14px;
+  width: 200px;
+  transition: width 0.3s ease-in-out;
+  animation: fadeIn 0.3s;
+}
+
+.search-icon-btn {
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    width: 0;
+  }
+  to {
+    opacity: 1;
+    width: 200px;
+  }
+}
+
 @media (max-width: 1050px) {
   .navbar .logo {
     width: 140px;

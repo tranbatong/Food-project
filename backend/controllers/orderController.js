@@ -7,49 +7,75 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const placeOrder = async (req, res) => {
   const frontend_url = "http://localhost:5174";
   try {
+    // Lưu đơn hàng vào Database (Bao gồm cả discountAmount nếu có)
     const newOrder = new orderModel({
       userId: req.body.userId,
       items: req.body.items,
-      amount: req.body.amount,
+      amount: req.body.amount, // Đây là tổng tiền cuối cùng sau khi đã tính phí ship và trừ giảm giá
+      discountAmount: req.body.discountAmount || 0, // Lưu số tiền đã giảm
       address: req.body.address,
       payment: false,
     });
     await newOrder.save();
+
+    // Xóa giỏ hàng của user sau khi đã tạo đơn
     await userModel.findByIdAndUpdate(req.body.userId, { cartData: {} });
+
+    // Tạo danh sách sản phẩm cho Stripe (Chuyển sang tiền USD)
     const line_items = req.body.items.map((item) => {
       return {
         price_data: {
-          currency: "inr",
+          currency: "usd", // Đổi từ "inr" sang "usd"
           product_data: {
             name: item.name,
           },
-          unit_amount: item.price * 100,
+          unit_amount: item.price * 100, // Stripe tính bằng cents (1 USD = 100 cents)
         },
         quantity: item.quantity,
       };
     });
+
+    // Thêm phí giao hàng vào Stripe
     line_items.push({
       price_data: {
-        currency: "inr",
+        currency: "usd", // Đổi từ "inr" sang "usd"
         product_data: {
           name: "Delivery Charges",
         },
-        unit_amount: 50 * 100,
+        unit_amount: 2 * 100, // Sửa phí ship thành 2 USD (200 cents)
       },
       quantity: 1,
     });
-    const session = await stripe.checkout.sessions.create({
+
+    // Cấu hình phiên thanh toán
+    let sessionConfig = {
       line_items: line_items,
       mode: "payment",
       success_url: `${frontend_url}/verify?success=true&orderId=${newOrder._id}`,
       cancel_url: `${frontend_url}/verify?success=false&orderId=${newOrder._id}`,
-    });
+    };
+
+    // Nếu có mã giảm giá, tạo một Coupon dùng 1 lần trên Stripe để trừ tiền
+    if (req.body.discountAmount && req.body.discountAmount > 0) {
+      const coupon = await stripe.coupons.create({
+        amount_off: Math.round(req.body.discountAmount * 100), // Quy đổi tiền giảm ra cents
+        currency: "usd",
+        duration: "once",
+      });
+      // Gắn coupon vào phiên thanh toán
+      sessionConfig.discounts = [{ coupon: coupon.id }];
+    }
+
+    // Khởi tạo phiên thanh toán Stripe
+    const session = await stripe.checkout.sessions.create(sessionConfig);
+
     res.json({ success: true, session_url: session.url });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: "Error" });
   }
 };
+
 // Xác thực đơn hàng sau khi thanh toán thành công hoặc thất bại
 const verifyOrder = async (req, res) => {
   const { orderId, success } = req.body;
@@ -66,7 +92,8 @@ const verifyOrder = async (req, res) => {
     res.json({ success: false, message: "Error" });
   }
 };
-// lấy danh sách đơn hàng của một người dùng cụ thể
+
+// Lấy danh sách đơn hàng của một người dùng cụ thể
 const userOrders = async (req, res) => {
   try {
     const orders = await orderModel.find({ userId: req.body.userId });
@@ -76,7 +103,8 @@ const userOrders = async (req, res) => {
     res.json({ success: false, message: "Error" });
   }
 };
-// lấy danh sách tất cả đơn hàng (dành cho Admin)
+
+// Lấy danh sách tất cả đơn hàng (dành cho Admin)
 const listOrders = async (req, res) => {
   try {
     const orders = await orderModel.find({});
@@ -86,6 +114,7 @@ const listOrders = async (req, res) => {
     res.json({ success: false, message: "Error" });
   }
 };
+
 // Cập nhật trạng thái đơn hàng (dành cho Admin)
 const updateStatus = async (req, res) => {
   try {

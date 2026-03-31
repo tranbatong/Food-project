@@ -6,6 +6,11 @@ import { StoreContext } from "../../context/StoreContext";
 
 const Navbar = ({ setShowLogin }) => {
   const [menu, setMenu] = useState("Home");
+
+  // State mới cho tính năng tìm kiếm
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const { getTotalCartAmount, token, setToken, isAdmin, setIsAdmin } =
     useContext(StoreContext);
   const navigate = useNavigate();
@@ -16,6 +21,16 @@ const Navbar = ({ setShowLogin }) => {
     setToken("");
     setIsAdmin(false);
     navigate("/");
+  };
+
+  // Hàm xử lý khi người dùng nhấn Enter
+  const handleSearch = (e) => {
+    if (e.key === "Enter" && searchQuery.trim() !== "") {
+      // Chuyển hướng sang trang listsearch và truyền từ khóa qua URL
+      navigate(`/listsearch?query=${searchQuery.trim()}`);
+      setShowSearch(false); // Ẩn thanh tìm kiếm sau khi enter (tùy chọn)
+      setSearchQuery(""); // Xóa trắng ô input (tùy chọn)
+    }
   };
 
   return (
@@ -54,7 +69,27 @@ const Navbar = ({ setShowLogin }) => {
         </a>
       </ul>
       <div className="navbar-right">
-        <img src={assets.search_icon} alt="search" />
+        {/* Khu vực tìm kiếm mới */}
+        <div className="navbar-search-container">
+          {showSearch && (
+            <input
+              type="text"
+              placeholder="Tìm kiếm món ăn..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearch}
+              className="navbar-search-input"
+              autoFocus // Tự động trỏ nháy chuột vào khi mở lên
+            />
+          )}
+          <img
+            src={assets.search_icon}
+            alt="search"
+            onClick={() => setShowSearch(!showSearch)}
+            className="search-icon-btn"
+          />
+        </div>
+
         <div className="navbar-search-icon">
           <Link to="/Cart">
             <img src={assets.basket_icon} alt="basket" />
@@ -68,7 +103,6 @@ const Navbar = ({ setShowLogin }) => {
           <div className="navbar-profile">
             <img src={assets.profile_icon} alt="profile" />
             <ul className="nav-profile-dropdown">
-              {/* Hiển thị nút Admin và mở ứng dụng ở port 5173 trên một tab mới */}
               {isAdmin && (
                 <>
                   <li
