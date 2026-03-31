@@ -17,7 +17,8 @@ const MyOrders = () => {
       );
 
       if (response.data.success) {
-        setData(response.data.orders);
+        // Tùy chọn: Đảo ngược mảng để đơn hàng mới nhất hiển thị lên trên cùng
+        setData(response.data.orders.reverse());
       } else {
         alert("Error fetching orders: " + response.data.message);
       }
@@ -52,12 +53,32 @@ const MyOrders = () => {
                 })}
               </p>
 
-              <p>${order.amount}.00</p>
+              {/* Hiển thị tổng tiền và số tiền đã giảm */}
+              <p>
+                <b>${order.amount.toFixed(2)}</b>
+                {order.discountAmount > 0 && (
+                  <span
+                    style={{
+                      color: "red",
+                      display: "block",
+                      fontSize: "14px",
+                      marginTop: "5px",
+                    }}
+                  >
+                    (Discount: -${order.discountAmount.toFixed(2)})
+                  </span>
+                )}
+              </p>
 
               <p>Items: {order.items?.length || 0}</p>
 
               <p>
                 <b>Status: </b> {order.status}
+              </p>
+
+              {/* THÊM HIỂN THỊ NGÀY ĐẶT HÀNG Ở ĐÂY */}
+              <p>
+                <b>Date: </b> {new Date(order.date).toLocaleString("en-GB")}
               </p>
 
               <button onClick={fetchOrders}>Track Order</button>

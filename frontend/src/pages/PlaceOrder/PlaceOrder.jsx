@@ -2,11 +2,21 @@ import { useContext, useEffect, useState } from "react";
 import "./PlaceOrder.css";
 import { StoreContext } from "../../context/StoreContext";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const PlaceOrder = () => {
   const { getTotalCartAmount, token, food_list, cartItems, url } =
     useContext(StoreContext);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Lấy thông tin giảm giá được truyền từ trang Cart sang (nếu có)
+  const discountInfo = location.state?.discountInfo || {
+    code: "",
+    discountAmount: 0,
+  };
+
   const [data, setData] = useState({
     firstName: "",
     lastName: "",
@@ -18,11 +28,21 @@ const PlaceOrder = () => {
     country: "",
     phone: "",
   });
+
   const onChangeHandler = (event) => {
     const name = event.target.name;
     const value = event.target.value;
     setData((data) => ({ ...data, [name]: value }));
   };
+
+  // Tính toán lại tổng tiền cuối cùng
+  const deliveryFee = getTotalCartAmount() === 0 ? 0 : 2;
+  const finalTotal = Math.max(
+    0,
+    getTotalCartAmount() === 0
+      ? 0
+      : getTotalCartAmount() + deliveryFee - discountInfo.discountAmount,
+  );
 
   const placeOrder = async (event) => {
     event.preventDefault();
@@ -39,7 +59,8 @@ const PlaceOrder = () => {
     let orderData = {
       address: data,
       items: orderItems,
-      amount: getTotalCartAmount() + 50,
+      amount: finalTotal, // Gửi tổng tiền ĐÃ TRỪ GIẢM GIÁ lên server
+      discountAmount: discountInfo.discountAmount, // Gửi số tiền giảm để server lưu vào database cho MyOrders đọc
     };
 
     try {
@@ -57,14 +78,14 @@ const PlaceOrder = () => {
       alert("An error occurred during payment processing.");
     }
   };
-  const navigate = useNavigate();
+
   useEffect(() => {
     if (!token) {
       navigate("/");
     } else if (getTotalCartAmount() === 0) {
       navigate("/cart");
     }
-  }, [token]);
+  }, [token, navigate, getTotalCartAmount]);
 
   return (
     <div>
@@ -165,16 +186,31 @@ const PlaceOrder = () => {
               <div className="cart-total-details">
                 <p>Delivery Fee</p>
                 <p>
-                  <strong>₹</strong>
-                  {getTotalCartAmount() === 0 ? 0 : 50}
+                  <strong>$</strong>
+                  {deliveryFee}
                 </p>
               </div>
               <hr />
+
+              {/* Hiển thị phần giảm giá nếu có */}
+              {discountInfo.discountAmount > 0 && (
+                <>
+                  <div className="cart-total-details">
+                    <p>Discount ({discountInfo.code})</p>
+                    <p style={{ color: "red" }}>
+                      <strong>-$</strong>
+                      {discountInfo.discountAmount.toFixed(2)}
+                    </p>
+                  </div>
+                  <hr />
+                </>
+              )}
+
               <div className="cart-total-details">
                 <b>Total</b>
                 <b>
-                  <strong>₹</strong>
-                  {getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + 50}
+                  <strong>$</strong>
+                  {finalTotal.toFixed(2)}
                 </b>
               </div>
             </div>
