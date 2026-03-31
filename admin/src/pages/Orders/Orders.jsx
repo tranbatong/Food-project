@@ -11,7 +11,8 @@ const Orders = ({ url }) => {
     try {
       const response = await axios.get(url + "/api/order/list");
       if (response.data.success) {
-        setOrders(response.data.data);
+        // Sử dụng reverse() để đảo ngược mảng, đưa đơn hàng mới nhất lên đầu
+        setOrders(response.data.data.reverse());
       } else {
         toast.error("Error fetching orders: " + response.data.message);
       }
@@ -84,7 +85,12 @@ const Orders = ({ url }) => {
             </div>
 
             <p>Items: {order.items.length}</p>
-            <p>${order.amount}</p>
+            <p>${order.amount.toFixed(2)}</p>
+
+            {/* Hiển thị ngày đặt hàng */}
+            <p>
+              <b>Date: </b> {new Date(order.date).toLocaleString("en-GB")}
+            </p>
 
             {/* Thẻ select để Admin cập nhật trạng thái đơn hàng */}
             <select
