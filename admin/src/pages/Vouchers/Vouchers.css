@@ -1,58 +1,54 @@
-.vouchers-container {
-  width: 70%;
-  margin-left: 5vw;
-  margin-top: 50px;
-  color: #6d6d6d;
-}
-
-.add-voucher form {
-  gap: 20px;
-  margin-bottom: 40px;
-}
-
-.add-voucher-input-group {
+.vouchers-page {
+  padding: 24px;
+  background-color: #f5f5f5;
+  min-height: calc(100vh - 100px);
+  /* Bắt buộc chiếm 100% chiều ngang của vùng nội dung */
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
-  gap: 20px;
+  flex-direction: column;
 }
 
-.add-voucher input {
-  padding: 10px;
-  border: 1px solid #a9a9a9;
-  border-radius: 4px;
-  outline-color: tomato;
+.vouchers-card {
+  flex: 1;
+  /* Căng ngang Card ra hết cỡ */
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
 }
 
-.add-btn {
-  max-width: 150px;
-  border: none;
-  padding: 10px;
-  background-color: black;
-  color: white;
-  cursor: pointer;
-  border-radius: 4px;
+.vouchers-card .ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.voucher-table-header,
-.voucher-table-item {
-  display: grid;
-  grid-template-columns: 1fr 0.5fr 1fr 1fr 0.5fr;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 15px;
-  border: 1px solid #cacaca;
-  font-size: 13px;
+.vouchers-card .ant-card-head-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1677ff;
 }
 
-.voucher-table-header {
-  background-color: #f9f9f9;
+.vouchers-card .ant-card-body {
+  flex: 1;
+  padding: 24px;
 }
 
-.voucher-table-item {
-  border-top: none;
+.full-width-table .ant-table-container {
+  background: white;
 }
 
-.cursor {
-  color: red;
-  font-weight: bold;
-  cursor: pointer;
+/* Căn đều các cột trong bảng và tạo khoảng trống rộng rãi */
+.full-width-table .ant-table-thead > tr > th {
+  padding: 16px 24px !important;
+  background-color: #fafafa !important;
+  font-weight: 600 !important;
+}
+
+.full-width-table .ant-table-tbody > tr > td {
+  padding: 16px 24px !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background-color: #f0f7ff !important;
 }

@@ -1,126 +1,65 @@
-.list {
-  padding: 20px;
-  color: #454545;
-}
-
-.list p:first-child {
-  font-size: 24px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 20px;
-}
-
-.list-table {
+.list-container {
+  width: 100%;
+  box-sizing: border-box; /* Bắt buộc để ép padding vào trong kích thước 100% */
+  padding: 24px;
+  background-color: #fff;
+  border-radius: 12px;
+  /* Đặt chiều cao tối thiểu bằng màn hình trừ đi header */
+  min-height: calc(100vh - 100px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  overflow-x: hidden;
 }
 
-/* Thanh tiêu đề bảng */
-.list-table-format.title {
-  background-color: #ffe1e1;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  box-shadow: none;
-  color: tomato;
-}
-
-.list-table-format.title:hover {
-  transform: none;
-  box-shadow: none;
-  border-color: transparent;
-}
-
-/* Các dòng chứa thông tin món ăn */
-.list-table-format {
-  display: grid;
-  grid-template-columns: 0.5fr 2fr 1fr 1fr 0.5fr;
-  align-items: center;
-  gap: 15px;
-  padding: 15px 20px;
-  border: 1px solid #f9f9f9;
-  border-radius: 12px;
-  background-color: #ffffff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-  transition: all 0.3s ease;
-  font-size: 14px;
-}
-
-/* Hiệu ứng nổi lên khi di chuột vào từng món ăn */
-.list-table-format:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(255, 99, 71, 0.12);
-  border-color: #ffe1e1;
-}
-
-/* Định dạng ảnh món ăn - Bo tròn góc */
-.list-table-format img {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-/* Nút Xóa (X) hiện đại */
-.list-table-format .cursor {
-  cursor: pointer;
-  font-weight: bold;
-  color: tomato;
-  background-color: #ffe1e1;
-  width: 30px;
-  height: 30px;
+/* Biến Header giống với tiêu đề của Card Ant Design */
+.list-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  border-radius: 50%; /* Bo tròn hoàn toàn thành hình tròn */
-  transition: all 0.3s ease;
-  margin: 0 auto;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
 }
 
-/* Hiệu ứng khi hover vào nút Xóa */
-.list-table-format .cursor:hover {
-  background-color: tomato;
-  color: white;
-  box-shadow: 0 4px 8px rgba(255, 99, 71, 0.3);
+.list-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1677ff; /* Đổi màu xanh đồng bộ với các trang khác */
+  margin: 0;
 }
 
-/* Responsive cho màn hình Máy tính bảng */
-@media (max-width: 900px) {
-  .list-table-format {
-    grid-template-columns: 1fr 2fr 1fr;
-    font-size: 13px;
-  }
-
-  /* Ẩn thanh tiêu đề trên màn hình nhỏ để tránh rối mắt */
-  .list-table-format.title {
-    display: none;
-  }
-
-  .list-table-format img {
-    width: 50px;
-    height: 50px;
-  }
+/* Ép bảng (Table) giãn ngang 100% và lấp đầy chiều dọc */
+.ant-table-wrapper {
+  width: 100%;
+  flex: 1;
 }
 
-/* Responsive cho màn hình Điện thoại */
-@media (max-width: 600px) {
-  .list-table-format {
-    grid-template-columns: 1fr;
-    text-align: center;
-    gap: 10px;
-    padding: 20px;
-  }
+.ant-table {
+  width: 100%;
+  background: white;
+  border-radius: 8px !important;
+}
 
-  .list-table-format img {
-    margin: 0 auto;
-    width: 80px;
-    height: 80px;
-  }
+/* Bo tròn ảnh trong bảng */
+.food-img-table {
+  border-radius: 8px;
+  object-fit: cover;
+}
 
-  .list-table-format .cursor {
-    width: 100%;
-    border-radius: 8px; /* Đổi nút xóa thành hình chữ nhật dài trên mobile */
-    padding: 10px;
-  }
+/* Tăng khoảng cách các ô trong bảng cho thoáng */
+.ant-table-thead > tr > th {
+  padding: 16px 24px !important;
+  background-color: #fafafa !important;
+  font-weight: 600 !important;
+}
+
+.ant-table-tbody > tr > td {
+  padding: 16px 24px !important;
+}
+
+/* Hiệu ứng khi hover vào dòng trong bảng */
+.ant-table-tbody > tr:hover > td {
+  background-color: #f0f7ff !important;
 }

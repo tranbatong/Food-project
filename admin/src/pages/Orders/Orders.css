@@ -1,172 +1,76 @@
-/* Bao bọc toàn bộ trang Order */
-.order {
+.orders-page {
   width: 100%;
-  padding: 20px 0;
-  font-family:
-    "Inter",
-    system-ui,
-    -apple-system,
-    sans-serif;
-}
-
-.order h3 {
-  font-size: 26px;
-  font-weight: 700;
-  color: #2c2c2c;
-  margin-bottom: 25px;
-}
-
-.order-list {
+  box-sizing: border-box;
+  padding: 24px;
+  background-color: #f5f5f5;
+  /* Đồng bộ chiều cao với các trang khác thay vì dùng 100vh gây cuộn trang */
+  min-height: calc(100vh - 100px);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  overflow-x: hidden;
 }
 
-/* Thẻ đơn hàng hiện đại */
-.order-item {
-  display: grid;
-  /* Chia 6 cột: Ảnh, Chi tiết(Tên, Địa chỉ), Số lượng, Giá, Ngày, Trạng thái (Select) */
-  grid-template-columns: 60px 2.5fr 0.8fr 1fr 1.5fr 1.2fr;
-  align-items: center;
-  gap: 24px;
-  padding: 24px;
-  border-radius: 16px;
-  background-color: #ffffff;
-  border: 1px solid #f0f0f0;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
-  font-size: 14px;
-  color: #555555;
-}
-
-/* Hiệu ứng nổi thẻ khi Admin lướt chuột qua */
-.order-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(255, 99, 71, 0.08);
-  border-color: #ffe1e1;
-}
-
-/* Biểu tượng hộp hàng */
-.order-item img {
-  width: 50px;
-  height: 50px;
-  object-fit: contain;
-  background-color: #fafafa;
-  padding: 8px;
+.order-card {
+  width: 100%;
+  box-sizing: border-box;
+  flex: 1; /* Ép thẻ Card giãn hết chiều dọc */
   border-radius: 12px;
-  border: 1px solid #eeeeee;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
 }
 
-/* Các chi tiết chữ bên trong thẻ */
-.order-item p {
-  margin: 0;
-  line-height: 1.5;
+.order-card .ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.order-item-food {
-  font-weight: 600;
-  color: tomato;
-  margin-bottom: 8px;
-  line-height: 1.4;
-  font-size: 14.5px;
+.order-card .ant-card-head-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1677ff;
 }
 
-.order-item-name {
-  font-weight: 600;
-  color: #222222;
+.order-card .ant-card-body {
+  flex: 1;
+  padding: 24px;
+  width: 100%;
+}
+
+.customer-info div {
   margin-bottom: 4px;
 }
 
-.order-item-address {
-  margin-bottom: 8px;
-  font-size: 13.5px;
-  color: #666666;
+.order-items-column {
+  max-height: 80px;
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
-.order-item-phone {
-  color: #444444;
-  font-weight: 500;
-}
-
-.order-item p b {
-  color: #222222;
-  font-weight: 600;
-}
-
-/* Tùy chỉnh Nút Select Trạng thái */
-.order-item select {
-  background-color: #fff0f0;
-  border: 1px solid #ffcccc;
-  padding: 12px 16px;
-  outline: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  color: tomato;
-  transition: all 0.25s ease;
-  font-family: inherit;
+/* Đảm bảo bảng (Table) giãn ngang 100% */
+.ant-table-wrapper {
   width: 100%;
 }
 
-.order-item select:focus,
-.order-item select:hover {
-  background-color: tomato;
-  color: #ffffff;
-  border-color: tomato;
-  box-shadow: 0 4px 12px rgba(255, 99, 71, 0.2);
+.ant-table {
+  width: 100%;
+  background: white;
+  border-radius: 8px !important;
 }
 
-.order-item select option {
-  background-color: #ffffff;
-  color: #454545;
-  font-weight: 500;
+/* Tăng khoảng cách các ô trong bảng cho thoáng */
+.ant-table-thead > tr > th {
+  padding: 16px 24px !important;
+  background-color: #fafafa !important;
+  font-weight: 600 !important;
 }
 
-/* Responsive cho màn hình Tablet / Laptop nhỏ (Dưới 1200px) */
-@media (max-width: 1200px) {
-  .order-item {
-    /* Đẩy xuống thành 2 dòng để không bị ép chữ */
-    grid-template-columns: 60px 2fr 1fr 1fr;
-    row-gap: 20px;
-    align-items: start;
-  }
-
-  /* Đẩy ngày tháng và nút chọn xuống hàng dưới */
-  .order-item > p:nth-child(5) {
-    grid-column: 2 / 4;
-    align-self: center;
-  }
-
-  .order-item select {
-    grid-column: 4;
-    align-self: center;
-  }
+.ant-table-tbody > tr > td {
+  padding: 16px 24px !important;
 }
 
-/* Responsive cho màn hình Điện thoại (Dưới 768px) */
-@media (max-width: 768px) {
-  .order-item {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 24px 20px;
-  }
-
-  .order-item img {
-    margin-bottom: 8px;
-    width: 55px;
-    height: 55px;
-  }
-
-  /* Kéo dài full viền để dễ bấm trên điện thoại */
-  .order-item select {
-    width: 100%;
-    margin-top: 10px;
-    padding: 14px 16px;
-    text-align: center;
-  }
+/* Hiệu ứng khi hover vào dòng trong bảng */
+.ant-table-tbody > tr:hover > td {
+  background-color: #f0f7ff !important;
 }
