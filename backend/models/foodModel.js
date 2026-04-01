@@ -6,6 +6,8 @@ const foodSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   image: { type: String, required: true },
   category: { type: String, required: true },
+  rating: { type: Number, default: 0 }, // Điểm sao trung bình
+  numReviews: { type: Number, default: 0 }, // Tổng số lượt đánh giá
 });
 
 const foodModel = mongoose.models.food || mongoose.model("food", foodSchema);
