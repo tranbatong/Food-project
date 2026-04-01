@@ -61,6 +61,19 @@ const StoreContextProvider = (props) => {
     );
     setCartItem(response.data.cartData);
   };
+  // Hàm gửi tin nhắn cho Chatbot
+  const sendChatMessage = async (message) => {
+    try {
+      const response = await axios.post(`${url}/api/chatbot/ask`, { message });
+      return response.data;
+    } catch (error) {
+      console.error("Lỗi khi gọi chatbot:", error);
+      return {
+        success: false,
+        answer: "Xin lỗi, tôi đang gặp sự cố kết nối. Vui lòng thử lại sau.",
+      };
+    }
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -87,6 +100,7 @@ const StoreContextProvider = (props) => {
     setToken,
     isAdmin,
     setIsAdmin,
+    sendChatMessage,
   };
   return (
     <StoreContext.Provider value={contextValue}>

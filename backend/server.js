@@ -9,6 +9,7 @@ import orderRouter from "./routes/orderRoute.js";
 import chatRouter from "./routes/chatRoute.js";
 import voucherRouter from "./routes/voucherRoute.js";
 import reviewRouter from "./routes/reviewRoute.js";
+import chatbotRouter from "./routes/chatbotRoute.js";
 import http from "http";
 import { Server } from "socket.io";
 
@@ -45,6 +46,7 @@ app.use("/api/order", orderRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/voucher", voucherRouter);
 app.use("/api/review", reviewRouter);
+app.use("/api/chatbot", chatbotRouter);
 
 // TRẠM BƯU ĐIỆN: Tạo một cuốn sổ (Map) để ghi nhớ ai đang online
 const onlineUsers = new Map();
