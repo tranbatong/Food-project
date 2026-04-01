@@ -1,36 +1,47 @@
 import React, { useEffect, useState } from "react";
 import "./Users.css";
 import axios from "axios";
-import { toast } from "react-toastify";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Select,
+  Space,
+  Tag,
+  Popconfirm,
+  message,
+  Card,
+} from "antd";
+
+const { Option } = Select;
 
 const Users = ({ url }) => {
   const [users, setUsers] = useState([]);
-  const token = localStorage.getItem("token");
-
-  // State quản lý hiển thị Modal
+  const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [targetUserId, setTargetUserId] = useState(null);
 
-  // State lưu trữ dữ liệu form
-  const [formData, setFormData] = useState({
-    targetUserId: "",
-    name: "",
-    email: "",
-    password: "",
-    role: "user", // Mặc định là khách hàng
-  });
+  const [form] = Form.useForm();
+  const token = localStorage.getItem("token");
 
   const fetchUsers = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(`${url}/api/user/list`, {
         headers: { token },
       });
       if (response.data.success) {
         setUsers(response.data.data);
+      } else {
+        message.error("Lỗi khi tải danh sách");
       }
     } catch (error) {
-      toast.error("Lỗi khi tải danh sách");
+      message.error("Lỗi kết nối server");
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -38,11 +49,6 @@ const Users = ({ url }) => {
   }, [url, token]);
 
   const removeUser = async (userId) => {
-    const confirmDelete = window.confirm(
-      "Bạn có chắc chắn muốn xóa người dùng này?",
-    );
-    if (!confirmDelete) return;
-
     try {
       const response = await axios.post(
         `${url}/api/user/remove`,
@@ -50,178 +56,183 @@ const Users = ({ url }) => {
         { headers: { token } },
       );
       if (response.data.success) {
-        toast.success(response.data.message);
+        message.success(response.data.message);
         fetchUsers();
       } else {
-        toast.error(response.data.message);
+        message.error(response.data.message);
       }
     } catch (error) {
-      toast.error("Lỗi khi xóa");
+      message.error("Lỗi khi xóa người dùng");
     }
   };
 
-  // Hàm mở Modal để Thêm mới
   const openAddModal = () => {
-    setFormData({
-      targetUserId: "",
-      name: "",
-      email: "",
-      password: "",
-      role: "user",
-    });
     setIsEditMode(false);
+    setTargetUserId(null);
+    form.resetFields();
+    form.setFieldsValue({ role: "user" });
     setShowModal(true);
   };
 
-  // Hàm mở Modal để Chỉnh sửa
-  const openEditModal = (user) => {
-    setFormData({
-      targetUserId: user._id,
-      name: user.name,
-      email: user.email,
-      password: "", // Bỏ trống, nếu Admin nhập thì mới đổi mật khẩu
-      role: user.isAdmin ? "admin" : "user",
-    });
+  const openEditModal = (record) => {
     setIsEditMode(true);
+    setTargetUserId(record._id);
+    form.setFieldsValue({
+      name: record.name,
+      email: record.email,
+      password: "",
+      role: record.isAdmin ? "admin" : "user",
+    });
     setShowModal(true);
   };
 
-  // Lắng nghe sự thay đổi của các ô input
-  const onChangeHandler = (e) => {
-    const name = e.target.name;
-    const value = e.target.value;
-    setFormData((data) => ({ ...data, [name]: value }));
-  };
-
-  // Xử lý khi nhấn nút Lưu trong Modal
-  const onSubmitHandler = async (e) => {
-    e.preventDefault();
+  const onSubmitHandler = async (values) => {
     const endpoint = isEditMode
       ? `${url}/api/user/edit`
       : `${url}/api/user/add`;
 
+    const payload = {
+      ...values,
+      targetUserId: targetUserId,
+    };
+
     try {
-      const response = await axios.post(endpoint, formData, {
+      const response = await axios.post(endpoint, payload, {
         headers: { token },
       });
       if (response.data.success) {
-        toast.success(response.data.message);
+        message.success(response.data.message);
         setShowModal(false);
-        fetchUsers(); // Tải lại danh sách
+        form.resetFields();
+        fetchUsers();
       } else {
-        toast.error(response.data.message);
+        message.error(response.data.message);
       }
     } catch (error) {
-      toast.error("Lỗi khi xử lý dữ liệu");
+      message.error("Lỗi khi lưu dữ liệu");
     }
   };
 
+  const columns = [
+    {
+      title: "Họ và tên",
+      dataIndex: "name",
+      key: "name",
+      sorter: (a, b) => a.name.localeCompare(b.name),
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Phân quyền",
+      dataIndex: "isAdmin",
+      key: "role",
+      render: (isAdmin) => (
+        <Tag color={isAdmin ? "red" : "blue"}>
+          {isAdmin ? "Admin" : "Khách hàng"}
+        </Tag>
+      ),
+    },
+    {
+      title: "Hành động",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button type="primary" ghost onClick={() => openEditModal(record)}>
+            Sửa
+          </Button>
+          <Popconfirm
+            title="Xóa người dùng"
+            description="Bạn có chắc chắn muốn xóa người dùng này?"
+            onConfirm={() => removeUser(record._id)}
+            okText="Có"
+            cancelText="Không"
+            disabled={record.isAdmin}
+          >
+            <Button danger disabled={record.isAdmin}>
+              Xóa
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
+
   return (
-    <div className="users-container">
-      <div className="users-header">
-        <h3>Quản lý người dùng</h3>
-        <button onClick={openAddModal} className="add-btn">
-          Thêm Người Dùng
-        </button>
-      </div>
+    <div className="users-page">
+      <Card
+        title="QUẢN LÝ NGƯỜI DÙNG"
+        extra={
+          <Button type="primary" onClick={openAddModal}>
+            Thêm Người Dùng
+          </Button>
+        }
+        className="users-card"
+      >
+        <Table
+          columns={columns}
+          dataSource={users}
+          rowKey="_id"
+          loading={loading}
+          pagination={{ pageSize: 10 }}
+          className="full-width-table"
+        />
+      </Card>
 
-      <div className="users-table">
-        <div className="users-table-title">
-          <b>Tên</b>
-          <b>Email</b>
-          <b>Phân quyền</b>
-          <b>Hành động</b>
-        </div>
-        {users.map((user, index) => (
-          <div key={index} className="users-table-item">
-            <p>{user.name}</p>
-            <p>{user.email}</p>
-            <p>{user.isAdmin ? "Admin" : "Khách hàng"}</p>
-            <div className="action-buttons">
-              <button onClick={() => openEditModal(user)} className="edit-btn">
-                Sửa
-              </button>
-              <button
-                onClick={() => removeUser(user._id)}
-                className="delete-btn"
-                disabled={user.isAdmin}
-              >
-                Xóa
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <Modal
+        title={isEditMode ? "Chỉnh sửa người dùng" : "Thêm người dùng mới"}
+        open={showModal}
+        onCancel={() => setShowModal(false)}
+        onOk={() => form.submit()}
+        okText="Lưu lại"
+        cancelText="Hủy"
+      >
+        <Form form={form} layout="vertical" onFinish={onSubmitHandler}>
+          <Form.Item
+            name="name"
+            label="Họ và tên"
+            rules={[{ required: true, message: "Vui lòng nhập họ tên" }]}
+          >
+            <Input placeholder="Nhập họ và tên" />
+          </Form.Item>
 
-      {/* Cửa sổ bật lên (Modal) */}
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h2>
-              {isEditMode ? "Chỉnh sửa người dùng" : "Thêm người dùng mới"}
-            </h2>
-            <form onSubmit={onSubmitHandler} className="modal-form">
-              <div className="input-group">
-                <label>Họ và tên</label>
-                <input
-                  type="text"
-                  name="name"
-                  onChange={onChangeHandler}
-                  value={formData.name}
-                  required
-                />
-              </div>
-              <div className="input-group">
-                <label>Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  onChange={onChangeHandler}
-                  value={formData.email}
-                  required
-                />
-              </div>
-              <div className="input-group">
-                <label>
-                  {isEditMode
-                    ? "Mật khẩu mới (Bỏ trống nếu không đổi)"
-                    : "Mật khẩu"}
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  onChange={onChangeHandler}
-                  value={formData.password}
-                  required={!isEditMode}
-                />
-              </div>
-              <div className="input-group">
-                <label>Phân quyền</label>
-                <select
-                  name="role"
-                  onChange={onChangeHandler}
-                  value={formData.role}
-                >
-                  <option value="user">Khách hàng</option>
-                  <option value="admin">Quản trị viên (Admin)</option>
-                </select>
-              </div>
-              <div className="modal-actions">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="cancel-btn"
-                >
-                  Hủy
-                </button>
-                <button type="submit" className="save-btn">
-                  Lưu lại
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+          <Form.Item
+            name="email"
+            label="Email"
+            rules={[
+              { required: true, message: "Vui lòng nhập email" },
+              { type: "email", message: "Email không hợp lệ" },
+            ]}
+          >
+            <Input placeholder="Nhập địa chỉ email" />
+          </Form.Item>
+
+          <Form.Item
+            name="password"
+            label={
+              isEditMode ? "Mật khẩu mới (Bỏ trống nếu không đổi)" : "Mật khẩu"
+            }
+            rules={[
+              { required: !isEditMode, message: "Vui lòng nhập mật khẩu" },
+            ]}
+          >
+            <Input.Password placeholder="Nhập mật khẩu" />
+          </Form.Item>
+
+          <Form.Item
+            name="role"
+            label="Phân quyền"
+            rules={[{ required: true, message: "Vui lòng chọn phân quyền" }]}
+          >
+            <Select>
+              <Option value="user">Khách hàng</Option>
+              <Option value="admin">Quản trị viên (Admin)</Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
