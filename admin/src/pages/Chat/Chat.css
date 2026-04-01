@@ -1,210 +1,157 @@
-/* Tổng quan container - Mở rộng như Zalo PC */
-.admin-chat-container {
+/* --- TỔNG THỂ KHUNG CHAT --- */
+.chat-layout {
+  /* Cố định chiều cao tổng thể để không làm cuộn trang web (Thay đổi 100px cho khớp với Header Admin của bạn) */
+  height: calc(100vh - 100px);
+  margin: 20px;
+  background: #fff;
+  border-radius: 12px;
   display: flex;
-  width: 100%;
-  height: 95vh; /* Chiều cao gần như toàn màn hình */
-  margin: 0 auto;
-  background-color: #e2e8f0; /* Màu nền xám nhạt đặc trưng phía sau khung chat */
-  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  flex-direction: row;
+  overflow: hidden; /* Ngăn trang web bị kéo dài xuống dưới */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
 }
 
-/* =========================================
-   CỘT DANH SÁCH KHÁCH HÀNG (BÊN TRÁI)
-========================================= */
-.chat-sidebar {
-  width: 340px; /* Rộng hơn để chứa tên và tin nhắn dễ nhìn hơn */
-  background-color: #ffffff;
-  border-right: 1px solid #d6dbe1;
+/* --- CỘT TRÁI: DANH SÁCH USER --- */
+.chat-sider {
+  background: #fff !important; /* Đè màu nền mặc định của Ant Design */
+  border-right: 1px solid #f0f0f0;
   display: flex;
   flex-direction: column;
-  z-index: 2;
+  height: 100%;
 }
 
-.chat-sidebar h3 {
+/* Phần tiêu đề "Hộp thư đến" cố định ở trên */
+.sider-header {
   padding: 20px;
-  margin: 0;
-  border-bottom: 1px solid #e1e4ea;
-  color: #000000;
-  font-size: 18px;
-  font-weight: 600;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0; /* Không bị ép nhỏ lại */
+  height: 65px;
 }
 
-.conversation-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0; /* Bỏ padding để item tràn viền giống Zalo */
+/* Khu vực danh sách user có thanh cuộn độc lập */
+.conversation-container {
+  flex: 1; /* Chiếm toàn bộ phần không gian còn lại của cột trái */
+  overflow-y: auto; /* Chỉ cuộn khu vực danh sách này */
 }
 
-/* Thanh cuộn nhỏ nhắn cho danh sách */
-.conversation-list::-webkit-scrollbar {
-  width: 5px;
-}
-.conversation-list::-webkit-scrollbar-thumb {
-  background-color: #cdd4df;
-  border-radius: 5px;
-}
-
-.conversation-item {
-  padding: 15px 20px;
+/* Giao diện từng User */
+.conv-item {
+  padding: 12px 20px !important;
   cursor: pointer;
-  transition: background-color 0.2s;
-  border-bottom: 1px solid #f2f4f7;
+  transition: all 0.2s;
 }
 
-.conversation-item:hover {
-  background-color: #f3f5f8; /* Màu xám nhạt khi di chuột */
+.conv-item:hover {
+  background-color: #fafafa;
 }
 
-.conversation-item.active {
-  background-color: #e5efff; /* Zalo thường dùng xanh nhạt, ở đây đổi sang tone sáng nhẹ */
-  background-color: #ffeae6; /* Giữ lại tone nền nhạt của màu Tomato */
-  border-left: 4px solid #ff6347; /* Viền trái màu Tomato để đánh dấu */
+.active-item {
+  background-color: #e6f4ff !important;
+  border-right: 3px solid #1677ff;
 }
 
-.conv-name {
-  font-weight: 600;
-  margin: 0 0 4px 0;
-  color: #081c36;
-  font-size: 15px;
-}
-
-.conv-last-msg {
-  margin: 0;
-  font-size: 13px;
-  color: #7589a3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* =========================================
-   CỘT NỘI DUNG CHAT (BÊN PHẢI)
-========================================= */
-.chat-main {
-  flex: 1;
+/* --- CỘT PHẢI: NỘI DUNG CHAT --- */
+.chat-content {
+  background: #fff;
   display: flex;
   flex-direction: column;
-  background-color: #eef0f4; /* Nền khu vực chat màu xám để nổi bật tin nhắn trắng */
+  height: 100%;
+  flex: 1;
 }
 
-.chat-empty-state {
-  flex: 1;
+.inner-chat-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fdfdfd;
+}
+
+/* Phần Header tên người chat cố định ở trên */
+.chat-header {
+  background: #fff !important;
+  padding: 0 24px !important;
+  border-bottom: 1px solid #f0f0f0;
   display: flex;
   align-items: center;
+  flex-shrink: 0;
+  height: 65px;
+}
+
+/* Khu vực đọc tin nhắn có thanh cuộn độc lập */
+.message-list-container {
+  flex: 1; /* Tự động giãn ra đẩy ô nhập liệu xuống dưới cùng */
+  padding: 20px;
+  overflow-y: auto; /* QUAN TRỌNG: Chỉ cuộn tin nhắn ở đây */
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- GIAO DIỆN BONG BÓNG TIN NHẮN --- */
+.msg-wrapper {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+.msg-sent {
+  justify-content: flex-end;
+}
+
+.msg-received {
+  justify-content: flex-start;
+}
+
+.msg-bubble {
+  max-width: 70%;
+  padding: 10px 16px;
+  border-radius: 18px;
+  font-size: 14.5px;
+  position: relative;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+  word-wrap: break-word; /* Tự động xuống dòng nếu từ quá dài */
+}
+
+.msg-sent .msg-bubble {
+  background: #1677ff;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.msg-received .msg-bubble {
+  background: #f0f0f0;
+  color: #333;
+  border-bottom-left-radius: 4px;
+}
+
+.msg-time {
+  font-size: 10px;
+  margin-top: 4px;
+  opacity: 0.7;
+  text-align: right;
+}
+
+/* --- KHUNG NHẬP LIỆU --- */
+/* Cố định phần nhập tin nhắn ở dưới cùng */
+.chat-input-area {
+  padding: 15px 20px;
+  background: #fff;
+  border-top: 1px solid #f0f0f0;
+  flex-shrink: 0; /* Không cho phép bị co lại khi tin nhắn nhiều */
+}
+
+/* --- CÁC TRẠNG THÁI KHÁC --- */
+.empty-chat {
+  height: 100%;
+  display: flex;
   justify-content: center;
-  color: #8a9bb2;
-  font-size: 15px;
-  background-color: #eef0f4;
-}
-
-.chat-main-header {
-  height: 64px; /* Fix cứng chiều cao header */
-  padding: 0 20px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #d6dbe1;
-  display: flex;
   align-items: center;
 }
 
-.chat-main-header h4 {
-  margin: 0;
-  color: #081c36;
-  font-size: 17px;
-  font-weight: 600;
-}
-
-.chat-main-messages {
-  flex: 1;
-  padding: 20px 40px; /* Tăng khoảng cách hai bên cho thoáng */
-  overflow-y: auto;
+.center-spin {
   display: flex;
-  flex-direction: column;
-  gap: 10px; /* Khoảng cách giữa các tin nhắn gần nhau hơn */
-}
-
-/* Thanh cuộn cho khung chat */
-.chat-main-messages::-webkit-scrollbar {
-  width: 6px;
-}
-.chat-main-messages::-webkit-scrollbar-thumb {
-  background-color: #b5c0d0;
-  border-radius: 5px;
-}
-
-/* =========================================
-   BONG BÓNG TIN NHẮN
-========================================= */
-.admin-msg-bubble {
-  max-width: 60%;
-  padding: 12px 16px;
-  font-size: 15px;
-  line-height: 1.4;
-  border-radius: 8px; /* Bo góc nhẹ giống Zalo thay vì bo tròn xoe */
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); /* Đổ bóng cực nhẹ */
-}
-
-.admin-msg-bubble.sent {
-  align-self: flex-end;
-  background-color: #ff6347; /* Màu Tomato thuần */
-  color: white;
-}
-
-.admin-msg-bubble.received {
-  align-self: flex-start;
-  background-color: #ffffff;
-  color: #081c36;
-}
-
-.admin-msg-bubble p {
-  margin: 0;
-  word-wrap: break-word;
-}
-
-/* =========================================
-   KHU VỰC NHẬP TIN NHẮN
-========================================= */
-.chat-main-input {
-  display: flex;
-  padding: 15px 20px;
-  background-color: #ffffff;
-  border-top: 1px solid #d6dbe1;
-  align-items: center;
-}
-
-.chat-main-input input {
-  flex: 1;
-  padding: 12px 15px;
-  background-color: #ffffff;
-  border: none; /* Bỏ viền input */
-  outline: none;
-  font-size: 15px;
-  color: #081c36;
-}
-
-.chat-main-input input::placeholder {
-  color: #a0b2c6;
-}
-
-/* Tạo đường viền giả cho khu vực nhập liệu nếu muốn giống khung chat */
-.chat-main-input {
-  box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.02);
-}
-
-.chat-main-input button {
-  background-color: #ff6347; /* Màu Tomato */
-  color: white;
-  border: none;
-  padding: 0 24px;
-  height: 44px;
-  margin-left: 15px;
-  border-radius: 6px; /* Bo góc nhẹ */
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.chat-main-input button:hover {
-  background-color: #e5533d; /* Tối màu lại một chút khi hover */
+  justify-content: center;
+  padding-top: 50px;
 }

@@ -2,25 +2,41 @@ import React, { useState, useEffect, useRef } from "react";
 import "./Chat.css";
 import axios from "axios";
 import { io } from "socket.io-client";
-import { toast } from "react-toastify";
+import {
+  Layout,
+  List,
+  Avatar,
+  Input,
+  Button,
+  Typography,
+  Badge,
+  Empty,
+  Spin,
+  Space,
+} from "antd";
+import { SendOutlined, UserOutlined } from "@ant-design/icons";
+
+const { Sider, Content, Header } = Layout;
+const { Text } = Typography;
 
 const Chat = ({ url }) => {
   const [conversations, setConversations] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const token = localStorage.getItem("token");
   const socket = useRef(null);
   const messagesEndRef = useRef(null);
-
-  // Thêm Ref này để Socket luôn biết chính xác Admin đang mở phòng chat nào
   const activeChatRef = useRef(activeChat);
+
+  // Đồng bộ activeChat vào ref để socket có thể truy cập giá trị mới nhất
   useEffect(() => {
     activeChatRef.current = activeChat;
   }, [activeChat]);
 
-  // Tách hàm fetchConversations ra ngoài để tái sử dụng
+  // Hàm tải danh sách các cuộc hội thoại
   const fetchConversations = async () => {
     try {
       const response = await axios.get(`${url}/api/chat/conversations`, {
@@ -30,42 +46,45 @@ const Chat = ({ url }) => {
         setConversations(response.data.data);
       }
     } catch (error) {
-      toast.error("Lỗi khi tải danh sách tin nhắn");
+      console.error("Lỗi tải danh sách khách hàng:", error);
     }
   };
 
-  // 1. Lấy danh sách các phòng chat lần đầu
+  // Lần đầu render, tải danh sách khách hàng
   useEffect(() => {
     if (token) fetchConversations();
   }, [url, token]);
 
-  // 2. Kết nối Socket.IO
+  // Thiết lập kết nối Socket.IO
   useEffect(() => {
     if (token) {
       socket.current = io(url);
 
+      // Đăng ký admin với socket server
       socket.current.emit("add-user", "admin");
 
+      // Lắng nghe tin nhắn mới
       socket.current.on("receive-message", (data) => {
-        // Fix: Chỉ hiển thị tin nhắn lên khung nếu đúng là của khách đang được chọn
+        // Chỉ thêm tin nhắn vào màn hình nếu đang mở đúng khung chat của người gửi
         if (data.senderId === activeChatRef.current) {
           setMessages((prev) => [...prev, data]);
         }
-
-        // Cập nhật lại cột trái để đẩy phòng vừa nhắn lên đầu và hiển thị lastMessage
+        // Luôn cập nhật lại danh sách để đưa người vừa nhắn lên đầu
         fetchConversations();
       });
     }
 
+    // Cleanup khi unmount
     return () => {
       if (socket.current) socket.current.disconnect();
     };
   }, [url, token]);
 
-  // 3. Lấy chi tiết tin nhắn khi bấm vào một khách hàng
+  // Tải chi tiết tin nhắn khi chọn một khách hàng
   useEffect(() => {
     const fetchMessages = async () => {
       if (!activeChat) return;
+      setLoading(true);
       try {
         const response = await axios.get(`${url}/api/chat/${activeChat}`, {
           headers: { token },
@@ -74,113 +93,176 @@ const Chat = ({ url }) => {
           setMessages(response.data.data);
         }
       } catch (error) {
-        toast.error("Lỗi khi tải nội dung chat");
+        console.error("Lỗi tải nội dung tin nhắn:", error);
       }
+      setLoading(false);
     };
     fetchMessages();
   }, [activeChat, url, token]);
 
-  // Tự động cuộn xuống cuối
+  // Tự động cuộn xuống tin nhắn mới nhất
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 4. Hàm gửi tin nhắn
-  const sendMessage = async (e) => {
-    e.preventDefault();
+  // Hàm xử lý gửi tin nhắn
+  const sendMessage = async () => {
     if (!inputText.trim() || !activeChat) return;
 
-    const messageData = {
-      text: inputText,
-      customerId: activeChat,
-    };
+    const currentInput = inputText;
 
+    // Hiển thị tin nhắn tạm thời lên giao diện ngay lập tức
     const tempMsg = {
       senderId: "admin",
-      text: inputText,
+      text: currentInput,
       createdAt: new Date(),
     };
     setMessages((prev) => [...prev, tempMsg]);
     setInputText("");
 
     try {
-      const response = await axios.post(`${url}/api/chat/send`, messageData, {
-        headers: { token },
-      });
+      // Lưu tin nhắn vào database
+      const response = await axios.post(
+        `${url}/api/chat/send`,
+        { text: currentInput, customerId: activeChat },
+        { headers: { token } },
+      );
 
       if (response.data.success) {
+        // Gửi qua socket cho khách hàng realtime
         socket.current.emit("send-message", {
           senderId: "admin",
-          receiverId: activeChat, // Gửi đích danh cho khách hàng này
-          text: inputText,
+          receiverId: activeChat,
+          text: currentInput,
         });
 
-        // Cập nhật lại cột trái sau khi Admin vừa gửi tin nhắn
+        // Cập nhật lại danh sách khách hàng bên trái
         fetchConversations();
       }
     } catch (error) {
-      toast.error("Lỗi gửi tin nhắn");
+      console.error("Lỗi gửi tin nhắn:", error);
     }
   };
 
   return (
-    <div className="admin-chat-container">
-      <div className="chat-sidebar">
-        <h3>Hộp thư đến</h3>
-        <div className="conversation-list">
-          {conversations.map((conv) => (
-            <div
-              key={conv._id}
-              className={`conversation-item ${activeChat === conv.userId ? "active" : ""}`}
-              onClick={() => setActiveChat(conv.userId)}
-            >
-              <div className="conv-info">
-                <p className="conv-name">
-                  Khách: {conv.userId.substring(0, 6)}...
-                </p>
-                <p className="conv-last-msg">{conv.lastMessage}</p>
-              </div>
-            </div>
-          ))}
+    <Layout className="chat-layout">
+      {/* Cột danh sách khách hàng bên trái */}
+      <Sider width={320} theme="light" className="chat-sider">
+        <div className="sider-header">
+          <Text strong style={{ fontSize: 18 }}>
+            Hộp thư đến
+          </Text>
+          <Badge count={conversations.length} showZero color="#1677ff" />
         </div>
-      </div>
 
-      <div className="chat-main">
+        {/* Khung chứa danh sách có thể cuộn độc lập */}
+        <div className="conversation-container">
+          <List
+            itemLayout="horizontal"
+            dataSource={conversations}
+            renderItem={(item) => (
+              <List.Item
+                className={`conv-item ${activeChat === item.userId ? "active-item" : ""}`}
+                onClick={() => setActiveChat(item.userId)}
+              >
+                <List.Item.Meta
+                  avatar={
+                    <Badge dot status={item.isOnline ? "success" : "default"}>
+                      <Avatar icon={<UserOutlined />} src={item.avatar} />
+                    </Badge>
+                  }
+                  title={
+                    <Text strong>Khách hàng {item.userId.substring(0, 6)}</Text>
+                  }
+                  description={
+                    <Text
+                      ellipsis
+                      type="secondary"
+                      style={{ maxWidth: "200px" }}
+                    >
+                      {item.lastMessage || "Chưa có tin nhắn"}
+                    </Text>
+                  }
+                />
+              </List.Item>
+            )}
+          />
+        </div>
+      </Sider>
+
+      {/* Cột nội dung chat bên phải */}
+      <Content className="chat-content">
         {activeChat ? (
-          <>
-            <div className="chat-main-header">
-              <h4>Đang chat với: {activeChat.substring(0, 6)}...</h4>
-            </div>
+          <div className="inner-chat-layout">
+            {/* Header thông tin người đang chat */}
+            <Header className="chat-header">
+              <Space>
+                <Avatar
+                  style={{ backgroundColor: "#87d068" }}
+                  icon={<UserOutlined />}
+                />
+                <Text strong>Đang chat với: {activeChat}</Text>
+              </Space>
+            </Header>
 
-            <div className="chat-main-messages">
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`admin-msg-bubble ${msg.senderId === "admin" ? "sent" : "received"}`}
-                >
-                  <p>{msg.text}</p>
+            {/* Khung chứa nội dung tin nhắn có thể cuộn độc lập */}
+            <div className="message-list-container">
+              {loading ? (
+                <div className="center-spin">
+                  <Spin size="large" />
                 </div>
-              ))}
+              ) : (
+                messages.map((msg, index) => (
+                  <div
+                    key={index}
+                    className={`msg-wrapper ${msg.senderId === "admin" ? "msg-sent" : "msg-received"}`}
+                  >
+                    <div className="msg-bubble">
+                      {msg.text}
+                      <div className="msg-time">
+                        {new Date(msg.createdAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+              {/* Điểm neo để tự động cuộn xuống cuối */}
               <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={sendMessage} className="chat-main-input">
-              <input
-                type="text"
-                placeholder="Nhập tin nhắn phản hồi..."
+            {/* Khu vực nhập liệu luôn nằm cố định dưới cùng */}
+            <div className="chat-input-area">
+              <Input
+                placeholder="Nhập tin nhắn..."
+                size="large"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
+                onPressEnter={sendMessage}
+                suffix={
+                  <Button
+                    type="primary"
+                    shape="circle"
+                    icon={<SendOutlined />}
+                    onClick={sendMessage}
+                  />
+                }
               />
-              <button type="submit">Gửi</button>
-            </form>
-          </>
+            </div>
+          </div>
         ) : (
-          <div className="chat-empty-state">
-            <p>Chọn một khách hàng ở cột bên trái để bắt đầu chat</p>
+          /* Trạng thái trống khi chưa chọn khách hàng */
+          <div className="empty-chat">
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description="Chọn một cuộc hội thoại bên trái để bắt đầu"
+            />
           </div>
         )}
-      </div>
-    </div>
+      </Content>
+    </Layout>
   );
 };
 
