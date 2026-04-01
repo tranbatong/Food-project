@@ -10,6 +10,7 @@ import Verify from "./pages/Verify/Verify";
 import MyOrders from "./pages/MyOrders/MyOrders";
 import ChatBox from "./components/ChatBox/ChatBox";
 import ListSearch from "./components/ListSearch/ListSearch";
+import Chatbot from "./components/ChatBox/Chatbot";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -30,6 +31,7 @@ const App = () => {
           <Route path="/listsearch" element={<ListSearch />} />
         </Routes>
         <ChatBox />
+        <Chatbot />
       </div>
       <Footer />
     </div>
