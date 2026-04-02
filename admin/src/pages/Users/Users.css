@@ -1,33 +1,39 @@
+/* Trang tổng thể */
 .users-page {
   width: 100%;
-  box-sizing: border-box; /* Bắt buộc phải có để ép padding nằm gọn trong 100% */
+  box-sizing: border-box;
   padding: 24px;
-  background-color: #f5f5f5;
-  /* Đặt chiều cao tối thiểu bằng màn hình trừ đi header */
+  background-color: #f4f7fe; /* Đổi sang màu nền xanh nhạt hiện đại hơn thay vì xám tro */
   min-height: calc(100vh - 100px);
   display: flex;
   flex-direction: column;
-  overflow-x: hidden; /* Ngăn chặn cuộn ngang nếu có phần tử con tràn ra */
+  overflow-x: hidden;
 }
 
+/* Thẻ Card chứa nội dung */
 .users-card {
   width: 100%;
   box-sizing: border-box;
-  flex: 1; /* Cho phép Card tự động giãn ra lấp đầy khoảng trắng */
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  flex: 1;
+  border-radius: 16px; /* Bo góc to hơn một chút để trông mềm mại */
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); /* Bóng đổ nhạt và rộng hơn */
   display: flex;
   flex-direction: column;
+  border: none !important; /* Xóa viền mặc định của thẻ Card */
+  background: #ffffff;
 }
 
+/* Tiêu đề của Card */
 .users-card .ant-card-head {
   border-bottom: 1px solid #f0f0f0;
+  padding: 0 24px;
+  min-height: 64px;
 }
 
 .users-card .ant-card-head-title {
   font-size: 18px;
   font-weight: 700;
-  color: #1677ff;
+  color: #2b3674; /* Màu xanh đậm chữ ký hiện đại */
 }
 
 .users-card .ant-card-body {
@@ -35,26 +41,52 @@
   padding: 24px;
 }
 
+/* Khung chứa bảng (Thêm scroll ngang để không bị vỡ trên Mobile) */
 .full-width-table {
   width: 100%;
+  overflow-x: auto;
 }
 
 .full-width-table .ant-table-container {
   background: white;
+  border-radius: 8px;
 }
 
-/* Tăng khoảng cách các ô trong bảng để tận dụng không gian */
+/* Tiêu đề các cột trong bảng */
 .full-width-table .ant-table-thead > tr > th {
   padding: 16px 24px !important;
-  background-color: #fafafa !important;
+  background-color: #f8f9fc !important;
   font-weight: 600 !important;
+  color: #8f9bba !important; /* Màu xám nhạt cho tiêu đề cột */
+  border-bottom: 1px solid #e2e8f0 !important;
 }
 
+/* Nội dung các ô trong bảng */
 .full-width-table .ant-table-tbody > tr > td {
   padding: 16px 24px !important;
+  color: #2b3674;
+  font-weight: 500;
+  border-bottom: 1px solid #e2e8f0 !important;
 }
 
-/* Hiệu ứng di chuột trong bảng */
-.ant-table-tbody > tr:hover > td {
+/* Hiệu ứng di chuột vào hàng (Hover) */
+.full-width-table .ant-table-tbody > tr:hover > td {
   background-color: #f0f7ff !important;
+  transition: all 0.3s ease;
+}
+
+/* Responsive: Điều chỉnh cho màn hình điện thoại / máy tính bảng nhỏ */
+@media screen and (max-width: 768px) {
+  .users-page {
+    padding: 12px;
+  }
+
+  .users-card .ant-card-body {
+    padding: 12px;
+  }
+
+  .full-width-table .ant-table-thead > tr > th,
+  .full-width-table .ant-table-tbody > tr > td {
+    padding: 12px 16px !important;
+  }
 }

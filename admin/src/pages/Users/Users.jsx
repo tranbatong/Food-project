@@ -81,7 +81,7 @@ const Users = ({ url }) => {
       name: record.name,
       email: record.email,
       password: "",
-      role: record.isAdmin ? "admin" : "user",
+      role: record.role || (record.isAdmin ? "admin" : "user"),
     });
     setShowModal(true);
   };
@@ -91,8 +91,12 @@ const Users = ({ url }) => {
       ? `${url}/api/user/edit`
       : `${url}/api/user/add`;
 
+    // Thay đổi ở đây: Gán values.role vào biến targetRole
     const payload = {
-      ...values,
+      name: values.name,
+      email: values.email,
+      password: values.password,
+      targetRole: values.role,
       targetUserId: targetUserId,
     };
 
@@ -127,13 +131,22 @@ const Users = ({ url }) => {
     },
     {
       title: "Phân quyền",
-      dataIndex: "isAdmin",
       key: "role",
-      render: (isAdmin) => (
-        <Tag color={isAdmin ? "red" : "blue"}>
-          {isAdmin ? "Admin" : "Khách hàng"}
-        </Tag>
-      ),
+      render: (_, record) => {
+        const userRole = record.role || (record.isAdmin ? "admin" : "user");
+        let color = "blue";
+        let text = "Khách hàng";
+
+        if (userRole === "admin") {
+          color = "red";
+          text = "Admin";
+        } else if (userRole === "shipper") {
+          color = "green";
+          text = "Shipper";
+        }
+
+        return <Tag color={color}>{text}</Tag>;
+      },
     },
     {
       title: "Hành động",
@@ -149,9 +162,9 @@ const Users = ({ url }) => {
             onConfirm={() => removeUser(record._id)}
             okText="Có"
             cancelText="Không"
-            disabled={record.isAdmin}
+            disabled={record.isAdmin || record.role === "admin"}
           >
-            <Button danger disabled={record.isAdmin}>
+            <Button danger disabled={record.isAdmin || record.role === "admin"}>
               Xóa
             </Button>
           </Popconfirm>
@@ -228,6 +241,7 @@ const Users = ({ url }) => {
           >
             <Select>
               <Option value="user">Khách hàng</Option>
+              <Option value="shipper">Người giao hàng (Shipper)</Option>
               <Option value="admin">Quản trị viên (Admin)</Option>
             </Select>
           </Form.Item>

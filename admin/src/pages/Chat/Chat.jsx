@@ -106,22 +106,28 @@ const Chat = ({ url }) => {
   }, [messages]);
 
   // Hàm xử lý gửi tin nhắn
-  const sendMessage = async () => {
+  const sendMessage = async (e) => {
+    // 1. Chặn hành vi mặc định (reload trang) khi nhấn Enter hoặc Click
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
+
     if (!inputText.trim() || !activeChat) return;
 
-    const currentInput = inputText;
+    // Lưu trữ tạm nội dung để tránh mất dữ liệu khi state bị xóa
+    const currentInput = inputText.trim();
 
-    // Hiển thị tin nhắn tạm thời lên giao diện ngay lập tức
+    // Hiển thị tin nhắn tạm thời lên giao diện Admin ngay lập tức
     const tempMsg = {
       senderId: "admin",
       text: currentInput,
       createdAt: new Date(),
     };
     setMessages((prev) => [...prev, tempMsg]);
-    setInputText("");
+    setInputText(""); // Xóa trắng ô input
 
     try {
-      // Lưu tin nhắn vào database
+      // 2. Lưu tin nhắn vào database
       const response = await axios.post(
         `${url}/api/chat/send`,
         { text: currentInput, customerId: activeChat },
@@ -129,18 +135,22 @@ const Chat = ({ url }) => {
       );
 
       if (response.data.success) {
-        // Gửi qua socket cho khách hàng realtime
+        console.log("✅ Đã lưu DB thành công, chuẩn bị phát Socket...");
+
+        // 3. Gửi qua socket cho khách hàng realtime
         socket.current.emit("send-message", {
           senderId: "admin",
           receiverId: activeChat,
           text: currentInput,
         });
 
-        // Cập nhật lại danh sách khách hàng bên trái
+        // 4. Cập nhật lại danh sách khách hàng bên trái
         fetchConversations();
+      } else {
+        console.error("❌ Lỗi từ server:", response.data.message);
       }
     } catch (error) {
-      console.error("Lỗi gửi tin nhắn:", error);
+      console.error("❌ Lỗi gửi tin nhắn:", error);
     }
   };
 

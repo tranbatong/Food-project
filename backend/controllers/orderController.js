@@ -128,4 +128,40 @@ const updateStatus = async (req, res) => {
   }
 };
 
-export { placeOrder, verifyOrder, userOrders, listOrders, updateStatus };
+const listShipperOrders = async (req, res) => {
+  try {
+    // Chỉ lấy những đơn hàng đang ở trạng thái cần xử lý giao hàng
+    const orders = await orderModel.find({
+      status: { $in: ["Food Processing", "On the Way"] },
+    });
+
+    res.json({ success: true, data: orders });
+  } catch (error) {
+    console.log("Lỗi lấy đơn hàng Shipper:", error);
+    res.json({ success: false, message: "Lỗi hệ thống khi lấy đơn hàng" });
+  }
+};
+
+// API 2: Shipper cập nhật trạng thái đơn hàng (ví dụ: xác nhận đã giao)
+const updateShipperStatus = async (req, res) => {
+  try {
+    const { orderId, status } = req.body;
+
+    await orderModel.findByIdAndUpdate(orderId, { status: status });
+
+    res.json({ success: true, message: "Đã cập nhật trạng thái đơn hàng" });
+  } catch (error) {
+    console.log("Lỗi cập nhật trạng thái Shipper:", error);
+    res.json({ success: false, message: "Lỗi khi cập nhật trạng thái" });
+  }
+};
+
+export {
+  placeOrder,
+  verifyOrder,
+  userOrders,
+  listOrders,
+  updateStatus,
+  listShipperOrders,
+  updateShipperStatus,
+};
