@@ -4,9 +4,13 @@ import { assets } from "../../assets/assets";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { StoreContext } from "../../context/StoreContext";
+import { useNavigate } from "react-router-dom"; // Bổ sung import useNavigate
 
 const LoginPopup = ({ setShowLogin }) => {
-  const { url, setToken, setIsAdmin } = useContext(StoreContext);
+  // Bổ sung lấy thêm setRole từ StoreContext
+  const { url, setToken, setIsAdmin, setRole } = useContext(StoreContext);
+
+  const navigate = useNavigate(); // Khởi tạo hàm điều hướng
 
   const [currState, setCurrState] = useState("Login");
   const [data, setData] = useState({
@@ -37,18 +41,28 @@ const LoginPopup = ({ setShowLogin }) => {
       if (response.data.success) {
         const token = response.data.token;
         const userIsAdmin = response.data.isAdmin;
+        const userRole = response.data.role; // Lấy role từ API trả về
 
+        // Cập nhật vào Context
         setToken(token);
         setIsAdmin(userIsAdmin);
+        setRole(userRole);
 
+        // Lưu vào LocalStorage để không bị mất khi F5
         localStorage.setItem("token", token);
         localStorage.setItem("isAdmin", userIsAdmin);
+        localStorage.setItem("role", userRole);
 
         setShowLogin(false);
 
         toast.success(
           currState === "Login" ? "Login Successful" : "Account Created",
         );
+
+        // BỔ SUNG: Kiểm tra role, nếu là shipper thì đẩy thẳng vào trang giao hàng
+        if (userRole === "shipper") {
+          navigate("/shipper");
+        }
       } else {
         toast.error(response.data.message);
       }

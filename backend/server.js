@@ -10,6 +10,7 @@ import chatRouter from "./routes/chatRoute.js";
 import voucherRouter from "./routes/voucherRoute.js";
 import reviewRouter from "./routes/reviewRoute.js";
 import chatbotRouter from "./routes/chatbotRoute.js";
+import orderModel from "./models/orderModel.js";
 import http from "http";
 import { Server } from "socket.io";
 
@@ -83,6 +84,37 @@ io.on("connection", (socket) => {
         "Danh sách đang online hiện tại:",
         Array.from(onlineUsers.keys()),
       );
+    }
+  });
+
+  // --- PHẦN MỚI: THEO DÕI GIAO HÀNG ---
+
+  // A. Khách hàng hoặc Shipper tham gia vào "Phòng đơn hàng"
+  socket.on("join_order_room", (orderId) => {
+    socket.join(orderId);
+    console.log(`Socket ${socket.id} đã vào phòng đơn hàng: ${orderId}`);
+  });
+
+  // B. Shipper gửi tọa độ mới lên
+  socket.on("update_location", async (data) => {
+    const { orderId, lat, lng } = data;
+
+    console.log(
+      `Shipper đang di chuyển - Đơn: ${orderId} - Vị trí: ${lat}, ${lng}`,
+    );
+
+    // 1. Phát (Loa) tọa độ này cho tất cả những ai đang ở trong phòng orderId (chính là Khách hàng)
+    // Dùng .to(orderId) để đảm bảo khách hàng đơn A không thấy shipper đơn B
+    socket.to(orderId).emit("delivery_progress", { lat, lng });
+
+    // 2. Lưu vào Database để lưu vết
+    try {
+      await orderModel.findByIdAndUpdate(orderId, {
+        "shipperLocation.lat": lat,
+        "shipperLocation.lng": lng,
+      });
+    } catch (error) {
+      console.error("Lỗi cập nhật tọa độ vào DB:", error);
     }
   });
 

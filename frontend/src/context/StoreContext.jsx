@@ -1,7 +1,6 @@
 import { createContext, useEffect, useState } from "react";
-import { food_list } from "../assets/assets";
-import { use } from "react";
 import axios from "axios";
+
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
@@ -10,6 +9,10 @@ const StoreContextProvider = (props) => {
   const url = "http://localhost:4000";
   const [token, setToken] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // BỔ SUNG: State lưu trữ vai trò của người dùng
+  const [role, setRole] = useState("");
+
   const [food_list, setFoodList] = useState([]);
 
   const addToCart = async (itemId) => {
@@ -26,6 +29,7 @@ const StoreContextProvider = (props) => {
       );
     }
   };
+
   const removeFromCart = async (itemId) => {
     setCartItem((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }));
     if (token) {
@@ -61,6 +65,7 @@ const StoreContextProvider = (props) => {
     );
     setCartItem(response.data.cartData);
   };
+
   // Hàm gửi tin nhắn cho Chatbot
   const sendChatMessage = async (message) => {
     try {
@@ -81,8 +86,15 @@ const StoreContextProvider = (props) => {
       if (localStorage.getItem("token")) {
         setToken(localStorage.getItem("token"));
         await localCartData(localStorage.getItem("token"));
+
         const storedIsAdmin = localStorage.getItem("isAdmin") === "true";
         setIsAdmin(storedIsAdmin);
+
+        // BỔ SUNG: Lấy role từ LocalStorage khi khởi động web
+        const storedRole = localStorage.getItem("role");
+        if (storedRole) {
+          setRole(storedRole);
+        }
       }
     }
     loadData();
@@ -100,8 +112,11 @@ const StoreContextProvider = (props) => {
     setToken,
     isAdmin,
     setIsAdmin,
+    role, // BỔ SUNG: Truyền role ra ngoài
+    setRole, // BỔ SUNG: Truyền hàm setRole ra ngoài
     sendChatMessage,
   };
+
   return (
     <StoreContext.Provider value={contextValue}>
       {props.children}

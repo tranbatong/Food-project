@@ -9,6 +9,15 @@ const orderSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
   payment: { type: Boolean, required: true },
   discountAmount: { type: Number, default: 0 },
+
+  shipperLocation: {
+    lat: { type: Number, default: 10.796 }, // Vĩ độ mặc định (ví dụ tọa độ cửa hàng)
+    lng: { type: Number, default: 106.716 }, // Kinh độ mặc định
+  },
+  customerCoords: {
+    lat: { type: Number },
+    lng: { type: Number },
+  },
 });
 
 const orderModel =
