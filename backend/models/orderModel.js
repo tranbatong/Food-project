@@ -11,8 +11,8 @@ const orderSchema = new mongoose.Schema({
   discountAmount: { type: Number, default: 0 },
 
   shipperLocation: {
-    lat: { type: Number, default: 10.796 }, // Vĩ độ mặc định (ví dụ tọa độ cửa hàng)
-    lng: { type: Number, default: 106.716 }, // Kinh độ mặc định
+    lat: { type: Number },
+    lng: { type: Number },
   },
   customerCoords: {
     lat: { type: Number },
