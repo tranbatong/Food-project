@@ -4,10 +4,10 @@ import { menu_list } from "../../assets/assets";
 const ExploreMenu = ({ category, setCategory }) => {
   return (
     <div className="explore-menu" id="explore-menu">
-      <h1>Explore our menu</h1>
+      <h1>Các loại món</h1>
       <p className="explore-menu-text">
-        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Repudiandae
-        velit aliquam quis possimus dolore at ullam qui optio tempore deserunt.
+        Đánh thức mọi giác quan của bạn bằng những kiệt tác ẩm thực được chăm
+        chút từ nguyên liệu đến cách trình bày.
       </p>
       <div className="explore-menu-list">
         {menu_list.map((item, index) => {

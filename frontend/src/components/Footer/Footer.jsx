@@ -1,35 +1,34 @@
 import React from "react";
 import "./Footer.css";
 import { assets } from "../../assets/assets";
+
 const Footer = () => {
   return (
     <div className="footer" id="footer">
       <div className="footer-content">
         <div className="footer-content-left">
-          <img src={assets.logo} alt="" />
+          <img src={assets.logo} alt="logo" />
           <p>
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Obcaecati
-            animi doloremque asperiores iure at harum nobis. Officiis laudantium
-            repudiandae fuga! Dignissimos et numquam a quae porro doloribus
-            architecto enim magnam?
+            Đánh thức mọi giác quan của bạn bằng những kiệt tác ẩm thực được
+            chăm chút từ nguyên liệu đến cách trình bày.
           </p>
           <div className="footer-social-icons">
-            <img src={assets.facebook_icon} alt="" />
-            <img src={assets.twitter_icon} alt="" />
-            <img src={assets.linkedin_icon} alt="" />
+            <img src={assets.facebook_icon} alt="facebook" />
+            <img src={assets.twitter_icon} alt="twitter" />
+            <img src={assets.linkedin_icon} alt="linkedin" />
           </div>
         </div>
         <div className="footer-content-center">
-          <h2>COMPANY</h2>
+          <h2>CÔNG TY</h2>
           <ul>
-            <li>Home</li>
-            <li>About us</li>
-            <li>Delivery</li>
-            <li>Privacy policy</li>
+            <li>Trang chủ</li>
+            <li>Về chúng tôi</li>
+            <li>Giao hàng</li>
+            <li>Chính sách bảo mật</li>
           </ul>
         </div>
         <div className="footer-content-right">
-          <h2>GET IN TOUCH</h2>
+          <h2>LIÊN HỆ</h2>
           <ul>
             <li>+84 0394 278 081</li>
             <li>tongxayda00@gmail.com</li>
@@ -38,7 +37,7 @@ const Footer = () => {
       </div>
       <hr />
       <p className="footer-copyright">
-        Copyright © 2026 batong.com. All rights reserved.{" "}
+        Bản quyền © 2026 thuộc về batong.com. Bảo lưu mọi quyền.{" "}
       </p>
     </div>
   );

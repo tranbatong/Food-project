@@ -8,6 +8,7 @@ import Orders from "./pages/Orders/Orders";
 import Chat from "./pages/Chat/Chat";
 import Users from "./pages/Users/Users";
 import Vouchers from "./pages/Vouchers/Vouchers";
+import Dashboard from "./pages/Dashboard/Dashboard";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -43,6 +44,7 @@ const App = () => {
           <Route path="/chat" element={<Chat url={url} />} />
           <Route path="/users" element={<Users url={url} />} />
           <Route path="/vouchers" element={<Vouchers url={url} />} />
+          <Route path="/dashboard" element={<Dashboard url={url} />} />
         </Routes>
       </div>
     </div>

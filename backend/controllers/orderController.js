@@ -157,6 +157,53 @@ const updateShipperStatus = async (req, res) => {
   }
 };
 
+const getDashboardStats = async (req, res) => {
+  try {
+    const totalOrders = await orderModel.countDocuments();
+    const totalUsers = await userModel.countDocuments({ role: "user" });
+
+    // Tổng doanh thu
+    const revenueResult = await orderModel.aggregate([
+      { $match: { status: "Delivered" } },
+      { $group: { _id: null, totalRevenue: { $sum: "$amount" } } },
+    ]);
+    const totalRevenue =
+      revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
+
+    // BỔ SUNG: Tính doanh thu theo từng ngày
+    const dailyRevenueResult = await orderModel.aggregate([
+      { $match: { status: "Delivered" } },
+      {
+        $group: {
+          // Nhóm theo định dạng ngày YYYY-MM-DD
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+          revenue: { $sum: "$amount" },
+        },
+      },
+      { $sort: { _id: 1 } }, // Sắp xếp theo ngày tăng dần
+    ]);
+
+    // Format lại mảng dữ liệu cho Frontend dễ đọc
+    const dailyRevenue = dailyRevenueResult.map((item) => ({
+      date: item._id,
+      revenue: item.revenue,
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        totalOrders,
+        totalUsers,
+        totalRevenue,
+        dailyRevenue, // Trả thêm mảng này về
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Lỗi khi lấy dữ liệu Dashboard" });
+  }
+};
+
 export {
   placeOrder,
   verifyOrder,
@@ -165,4 +212,5 @@ export {
   updateStatus,
   listShipperOrders,
   updateShipperStatus,
+  getDashboardStats,
 };

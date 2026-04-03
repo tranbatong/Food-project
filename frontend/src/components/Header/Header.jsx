@@ -4,12 +4,12 @@ const Header = () => {
   return (
     <div className="header">
       <div className="header-contents">
-        <h2>Order your favourite food hear</h2>
+        <h2>Lựa chọn món ăn yêu thích của bạn</h2>
         <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Eveniet qui
-          repellat fugiat eius! Dolore error ullam cupiditate id, ad molestiae?
+          Đánh thức mọi giác quan của bạn bằng những kiệt tác ẩm thực được chăm
+          chút từ nguyên liệu đến cách trình bày.
         </p>
-        <button> View menu</button>
+        <button> Xem danh sách</button>
       </div>
     </div>
   );

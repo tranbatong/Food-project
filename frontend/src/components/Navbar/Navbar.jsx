@@ -53,12 +53,13 @@ const Navbar = ({ setShowLogin }) => {
         >
           Menu
         </a>
+        {/* Đã sửa phần này thành Newsletter */}
         <a
-          href="#app-download"
-          onClick={() => setMenu("Mobile")}
-          className={menu === "Mobile" ? "active" : ""}
+          href="#newsletter"
+          onClick={() => setMenu("Newsletter")}
+          className={menu === "Newsletter" ? "active" : ""}
         >
-          Mobile-app
+          Newsletter
         </a>
         <a
           href="#footer"
