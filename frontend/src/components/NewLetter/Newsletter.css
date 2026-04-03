@@ -1,0 +1,73 @@
+.newsletter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 50px auto;
+  padding: 50px 20px;
+  text-align: center;
+  background-color: #fcf1f0; /* Màu nền cam nhạt mang cảm giác thèm ăn */
+  border-radius: 15px;
+  max-width: 800px;
+}
+
+.newsletter h2 {
+  font-size: max(2vw, 24px);
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.newsletter p {
+  font-size: max(1vw, 16px);
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 30px;
+}
+
+.newsletter-form {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.newsletter-form input {
+  flex: 1;
+  padding: 12px 20px;
+  border: 1px solid #ccc;
+  border-radius: 30px;
+  outline: none;
+  font-size: 16px;
+}
+
+.newsletter-form input:focus {
+  border-color: #ff4c24;
+}
+
+.newsletter-form button {
+  padding: 12px 30px;
+  background-color: #ff4c24; /* Màu cam đỏ nổi bật */
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.newsletter-form button:hover {
+  background-color: #e03e1c;
+}
+
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 600px) {
+  .newsletter-form {
+    flex-direction: column;
+  }
+
+  .newsletter-form button {
+    width: 100%;
+  }
+}
