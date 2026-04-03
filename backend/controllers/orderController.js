@@ -7,14 +7,15 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const placeOrder = async (req, res) => {
   const frontend_url = "http://localhost:5174";
   try {
-    // Lưu đơn hàng vào Database (Bao gồm cả discountAmount nếu có)
+    // Lưu đơn hàng vào Database (Bao gồm cả discountAmount và customerCoords)
     const newOrder = new orderModel({
       userId: req.body.userId,
       items: req.body.items,
-      amount: req.body.amount, // Đây là tổng tiền cuối cùng sau khi đã tính phí ship và trừ giảm giá
-      discountAmount: req.body.discountAmount || 0, // Lưu số tiền đã giảm
+      amount: req.body.amount,
+      discountAmount: req.body.discountAmount || 0,
       address: req.body.address,
       payment: false,
+      customerCoords: req.body.customerCoords, // BỔ SUNG DÒNG NÀY ĐỂ LƯU TỌA ĐỘ KHÁCH HÀNG
     });
     await newOrder.save();
 
@@ -25,11 +26,11 @@ const placeOrder = async (req, res) => {
     const line_items = req.body.items.map((item) => {
       return {
         price_data: {
-          currency: "usd", // Đổi từ "inr" sang "usd"
+          currency: "usd",
           product_data: {
             name: item.name,
           },
-          unit_amount: item.price * 100, // Stripe tính bằng cents (1 USD = 100 cents)
+          unit_amount: item.price * 100,
         },
         quantity: item.quantity,
       };
@@ -38,11 +39,11 @@ const placeOrder = async (req, res) => {
     // Thêm phí giao hàng vào Stripe
     line_items.push({
       price_data: {
-        currency: "usd", // Đổi từ "inr" sang "usd"
+        currency: "usd",
         product_data: {
           name: "Delivery Charges",
         },
-        unit_amount: 2 * 100, // Sửa phí ship thành 2 USD (200 cents)
+        unit_amount: 2 * 100,
       },
       quantity: 1,
     });
@@ -58,7 +59,7 @@ const placeOrder = async (req, res) => {
     // Nếu có mã giảm giá, tạo một Coupon dùng 1 lần trên Stripe để trừ tiền
     if (req.body.discountAmount && req.body.discountAmount > 0) {
       const coupon = await stripe.coupons.create({
-        amount_off: Math.round(req.body.discountAmount * 100), // Quy đổi tiền giảm ra cents
+        amount_off: Math.round(req.body.discountAmount * 100),
         currency: "usd",
         duration: "once",
       });
@@ -128,4 +129,40 @@ const updateStatus = async (req, res) => {
   }
 };
 
-export { placeOrder, verifyOrder, userOrders, listOrders, updateStatus };
+const listShipperOrders = async (req, res) => {
+  try {
+    // Chỉ lấy những đơn hàng đang ở trạng thái cần xử lý giao hàng
+    const orders = await orderModel.find({
+      status: { $in: ["Food Processing", "On the Way"] },
+    });
+
+    res.json({ success: true, data: orders });
+  } catch (error) {
+    console.log("Lỗi lấy đơn hàng Shipper:", error);
+    res.json({ success: false, message: "Lỗi hệ thống khi lấy đơn hàng" });
+  }
+};
+
+// API 2: Shipper cập nhật trạng thái đơn hàng (ví dụ: xác nhận đã giao)
+const updateShipperStatus = async (req, res) => {
+  try {
+    const { orderId, status } = req.body;
+
+    await orderModel.findByIdAndUpdate(orderId, { status: status });
+
+    res.json({ success: true, message: "Đã cập nhật trạng thái đơn hàng" });
+  } catch (error) {
+    console.log("Lỗi cập nhật trạng thái Shipper:", error);
+    res.json({ success: false, message: "Lỗi khi cập nhật trạng thái" });
+  }
+};
+
+export {
+  placeOrder,
+  verifyOrder,
+  userOrders,
+  listOrders,
+  updateStatus,
+  listShipperOrders,
+  updateShipperStatus,
+};

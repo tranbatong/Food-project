@@ -11,7 +11,6 @@ const PlaceOrder = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Lấy thông tin giảm giá được truyền từ trang Cart sang (nếu có)
   const discountInfo = location.state?.discountInfo || {
     code: "",
     discountAmount: 0,
@@ -29,13 +28,42 @@ const PlaceOrder = () => {
     phone: "",
   });
 
+  // BƯỚC 1: Thêm State lưu tọa độ GPS của khách hàng
+  const [customerCoords, setCustomerCoords] = useState({
+    lat: null,
+    lng: null,
+  });
+
   const onChangeHandler = (event) => {
     const name = event.target.name;
     const value = event.target.value;
     setData((data) => ({ ...data, [name]: value }));
   };
 
-  // Tính toán lại tổng tiền cuối cùng
+  // BƯỚC 2: Hàm lấy vị trí GPS từ trình duyệt
+  const getLocation = (e) => {
+    e.preventDefault(); // Ngăn form tự động submit khi bấm nút này
+    if (!navigator.geolocation) {
+      alert("Trình duyệt của bạn không hỗ trợ lấy vị trí!");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCustomerCoords({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+        alert("Đã lấy vị trí thành công!");
+      },
+      (error) => {
+        alert(
+          "Vui lòng cho phép truy cập vị trí để Shipper giao hàng chính xác hơn.",
+        );
+      },
+    );
+  };
+
   const deliveryFee = getTotalCartAmount() === 0 ? 0 : 2;
   const finalTotal = Math.max(
     0,
@@ -59,8 +87,10 @@ const PlaceOrder = () => {
     let orderData = {
       address: data,
       items: orderItems,
-      amount: finalTotal, // Gửi tổng tiền ĐÃ TRỪ GIẢM GIÁ lên server
-      discountAmount: discountInfo.discountAmount, // Gửi số tiền giảm để server lưu vào database cho MyOrders đọc
+      amount: finalTotal,
+      discountAmount: discountInfo.discountAmount,
+      // BƯỚC 3: Gửi kèm tọa độ lên Server
+      customerCoords: customerCoords,
     };
 
     try {
@@ -92,6 +122,37 @@ const PlaceOrder = () => {
       <form onSubmit={placeOrder} className="place-order">
         <div className="place-order-left">
           <p className="title">Delivery Information</p>
+
+          {/* BƯỚC 4: Thêm nút lấy vị trí trên giao diện */}
+          <div style={{ marginBottom: "20px" }}>
+            <button
+              onClick={getLocation}
+              style={{
+                padding: "10px 15px",
+                backgroundColor: "tomato",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontWeight: "bold",
+                marginRight: "10px",
+              }}
+            >
+              Lấy vị trí giao hàng
+            </button>
+            {customerCoords.lat && (
+              <span
+                style={{ color: "green", fontWeight: "bold", fontSize: "14px" }}
+              >
+                Đã nhận tọa độ thành công
+              </span>
+            )}
+            <p style={{ fontSize: "12px", color: "gray", marginTop: "5px" }}>
+              Hãy bấm để chia sẻ vị trí, giúp shipper giao hàng tới bạn nhanh
+              nhất.
+            </p>
+          </div>
+
           <div className="multi-fields">
             <input
               required
@@ -192,7 +253,6 @@ const PlaceOrder = () => {
               </div>
               <hr />
 
-              {/* Hiển thị phần giảm giá nếu có */}
               {discountInfo.discountAmount > 0 && (
                 <>
                   <div className="cart-total-details">

@@ -3,8 +3,9 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import validator from "validator";
 
-const createToken = (id, isAdmin) => {
-  return jwt.sign({ id, isAdmin }, process.env.JWT_SECRET);
+// CẬP NHẬT: Thêm tham số 'role' vào hàm tạo token
+const createToken = (id, isAdmin, role) => {
+  return jwt.sign({ id, isAdmin, role }, process.env.JWT_SECRET);
 };
 
 const loginUser = async (req, res) => {
@@ -19,12 +20,14 @@ const loginUser = async (req, res) => {
       return res.json({ success: false, message: "Invalid credentials" });
     }
 
-    const token = createToken(user._id, user.isAdmin);
+    // CẬP NHẬT: Truyền thêm user.role vào để lưu trong token
+    const token = createToken(user._id, user.isAdmin, user.role);
 
     res.json({
       success: true,
       token,
       isAdmin: user.isAdmin,
+      role: user.role, // Trả thêm role về Frontend để Frontend tự động chuyển hướng
     });
   } catch (error) {
     console.log(error);
@@ -58,15 +61,18 @@ const registerUser = async (req, res) => {
       name: name,
       email: email,
       password: hashedPassword,
+      // Mặc định đăng ký mới là role "user"
+      role: "user",
     });
     const user = await newUser.save();
 
-    const token = createToken(user._id, false);
+    const token = createToken(user._id, false, "user");
 
     res.json({
       success: true,
       token,
       isAdmin: false,
+      role: "user",
     });
   } catch (error) {
     console.log(error);
@@ -77,7 +83,6 @@ const registerUser = async (req, res) => {
 // Lấy danh sách tất cả người dùng (Chỉ Admin)
 const getAllUsers = async (req, res) => {
   try {
-    // Bảo mật: Kiểm tra xem người gọi API có phải là Admin không
     if (!req.body.isAdmin) {
       return res.json({
         success: false,
@@ -85,7 +90,6 @@ const getAllUsers = async (req, res) => {
       });
     }
 
-    // Lấy toàn bộ dữ liệu user, trừ trường password ra để bảo mật thông tin
     const users = await userModel.find({}).select("-password");
     res.json({ success: true, data: users });
   } catch (error) {
@@ -112,31 +116,32 @@ const removeUser = async (req, res) => {
     res.json({ success: false, message: "Lỗi khi xóa người dùng" });
   }
 };
-// thêm
+
+// Thêm người dùng (Admin)
 const addUser = async (req, res) => {
   try {
     if (!req.body.isAdmin) {
       return res.json({ success: false, message: "Truy cập bị từ chối." });
     }
 
-    // Frontend sẽ gửi lên name, email, password và role (để phân biệt quyền)
-    const { name, email, password, role } = req.body;
+    // Đổi chữ 'role' thành 'targetRole' để không bị middleware ghi đè
+    const { name, email, password, targetRole } = req.body;
 
-    // Kiểm tra email tồn tại
     const exists = await userModel.findOne({ email });
     if (exists) {
       return res.json({ success: false, message: "Email đã tồn tại" });
     }
 
-    // Mã hóa mật khẩu
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Sử dụng targetRole để lưu dữ liệu
     const newUser = new userModel({
       name,
       email,
       password: hashedPassword,
-      isAdmin: role === "admin" ? true : false,
+      role: targetRole || "user",
+      isAdmin: targetRole === "admin" ? true : false,
     });
 
     await newUser.save();
@@ -147,14 +152,15 @@ const addUser = async (req, res) => {
   }
 };
 
-// API: Cập nhật thông tin người dùng (Admin)
+// Cập nhật thông tin người dùng (Admin)
 const editUser = async (req, res) => {
   try {
     if (!req.body.isAdmin) {
       return res.json({ success: false, message: "Truy cập bị từ chối." });
     }
 
-    const { targetUserId, name, email, password, role } = req.body;
+    // Đổi chữ 'role' thành 'targetRole'
+    const { targetUserId, name, email, password, targetRole } = req.body;
 
     const user = await userModel.findById(targetUserId);
     if (!user) {
@@ -163,7 +169,12 @@ const editUser = async (req, res) => {
 
     user.name = name || user.name;
     user.email = email || user.email;
-    user.isAdmin = role === "admin" ? true : false;
+
+    // Cập nhật dựa trên targetRole
+    if (targetRole) {
+      user.role = targetRole;
+      user.isAdmin = targetRole === "admin" ? true : false;
+    }
 
     if (password && password.length > 0) {
       const salt = await bcrypt.genSalt(10);

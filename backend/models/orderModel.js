@@ -9,6 +9,15 @@ const orderSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
   payment: { type: Boolean, required: true },
   discountAmount: { type: Number, default: 0 },
+
+  shipperLocation: {
+    lat: { type: Number },
+    lng: { type: Number },
+  },
+  customerCoords: {
+    lat: { type: Number },
+    lng: { type: Number },
+  },
 });
 
 const orderModel =
