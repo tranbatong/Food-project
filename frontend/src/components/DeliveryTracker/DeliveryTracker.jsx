@@ -15,15 +15,18 @@ L.Icon.Default.mergeOptions({
 });
 
 const DeliveryTracker = ({ order, url }) => {
-  const [shipperLocation, setShipperLocation] = useState({
-    lat: order.shipperLocation?.lat || 10.796,
-    lng: order.shipperLocation?.lng || 106.716,
-  });
-
+  // Vị trí khách hàng lấy từ Database (Lúc đặt hàng)
   const customerLocation = {
     lat: order.customerCoords?.lat || 10.8231,
     lng: order.customerCoords?.lng || 106.6297,
   };
+
+  // Vị trí Shipper. Khởi tạo bằng null nếu Shipper chưa bắt đầu giao.
+  const [shipperLocation, setShipperLocation] = useState(
+    order.shipperLocation?.lat && order.shipperLocation?.lng
+      ? { lat: order.shipperLocation.lat, lng: order.shipperLocation.lng }
+      : null,
+  );
 
   const socketRef = useRef(null);
 
@@ -61,8 +64,10 @@ const DeliveryTracker = ({ order, url }) => {
           Bản đồ theo dõi tiến trình giao hàng
         </h4>
       </div>
+
+      {/* Lấy vị trí khách hàng làm trung tâm bản đồ */}
       <MapContainer
-        center={[shipperLocation.lat, shipperLocation.lng]}
+        center={[customerLocation.lat, customerLocation.lng]}
         zoom={14}
         style={{ height: "400px", width: "100%" }}
       >
@@ -71,13 +76,17 @@ const DeliveryTracker = ({ order, url }) => {
           attribution="&copy; OpenStreetMap contributors"
         />
 
-        <Marker position={[shipperLocation.lat, shipperLocation.lng]}>
-          <Popup>Vị trí của Shipper</Popup>
-        </Marker>
-
+        {/* Điểm cố định: Vị trí của Khách hàng luôn xuất hiện */}
         <Marker position={[customerLocation.lat, customerLocation.lng]}>
           <Popup>Địa chỉ của bạn</Popup>
         </Marker>
+
+        {/* Điểm di chuyển: Vị trí của Shipper (Chỉ hiển thị khi đã có tọa độ từ Shipper gửi lên) */}
+        {shipperLocation && (
+          <Marker position={[shipperLocation.lat, shipperLocation.lng]}>
+            <Popup>Vị trí của Shipper</Popup>
+          </Marker>
+        )}
       </MapContainer>
     </div>
   );
