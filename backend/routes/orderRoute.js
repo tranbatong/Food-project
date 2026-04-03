@@ -8,6 +8,7 @@ import {
   updateStatus,
   listShipperOrders,
   updateShipperStatus,
+  getDashboardStats,
 } from "../controllers/orderController.js";
 
 const orderRouter = express.Router();
@@ -20,5 +21,6 @@ orderRouter.post("/updateStatus", updateStatus);
 //
 orderRouter.get("/shipper/list", authMiddleware, listShipperOrders);
 orderRouter.post("/shipper/status", authMiddleware, updateShipperStatus);
+orderRouter.get("/dashboard", getDashboardStats);
 
 export default orderRouter;

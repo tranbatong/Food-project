@@ -2,6 +2,7 @@ import React from "react";
 import { Layout, Menu } from "antd";
 import { NavLink, useLocation } from "react-router-dom";
 import {
+  DashboardOutlined,
   PlusCircleOutlined,
   UnorderedListOutlined,
   ShoppingOutlined,
@@ -16,8 +17,13 @@ const { Sider } = Layout;
 const Sidebar = () => {
   const location = useLocation();
 
-  // Danh sách các menu item để code gọn hơn
+  // Danh sách các menu item
   const menuItems = [
+    {
+      key: "/dashboard",
+      icon: <DashboardOutlined />,
+      label: <NavLink to="/dashboard">Dashboard</NavLink>,
+    },
     {
       key: "/list",
       icon: <UnorderedListOutlined />,
